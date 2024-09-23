@@ -1,0 +1,162 @@
+# Ignore Visual Studio temporary files, build results, and
+# some common Visual Studio configuration files
+
+## User-specific files ##
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## User-specific files (Mono Auto Generated) ##
+mono_crash.*
+
+## Build results ##
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Uncomment if needed
+# wwwroot/
+# node_modules/
+
+## NuGet ##
+*.nupkg
+*.snupkg
+*.nuget
+# NuGet Packages
+**/[Pp]ackages/*
+# The packages folder can be ignored because of the `project.assets.json` file being used for restoring packages.
+# Uncomment if you have the `NuGet.config` in this repository and want to ignore packages folder from subdirectories.
+#!**/[Pp]ackages/build/
+#!**/[Pp]ackages/rebuild/
+#!**/[Pp]ackages/![Ll]og.txt
+!**/[Pp]ackages/[Pp]ackageId/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Windows image file caches ##
+Thumbs.db
+ehthumbs.db
+
+## Folder config file ##
+Desktop.ini
+
+## Recycle Bin used on file shares ##
+$RECYCLE.BIN/
+
+## Windows 7/8/10+
+*.lock
+*.lnk
+
+## JetBrains Rider ##
+.idea/
+
+## Rider settings ##
+.idea/
+
+# VS Code directories
+.vscode/
+.vscode/*
+
+## Local History
+.localhistory/
+
+# NCrunch
+*.ncrunchsolution
+*.ncrunchproject
+*.ncrunchreferences
+# Ignore Visual Studio temporary files, build results, and
+# some common Visual Studio configuration files
+
+## User-specific files ##
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## User-specific files (Mono Auto Generated) ##
+mono_crash.*
+
+## Build results ##
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Uncomment if needed
+# wwwroot/
+# node_modules/
+
+## NuGet ##
+*.nupkg
+*.snupkg
+*.nuget
+# NuGet Packages
+**/[Pp]ackages/*
+# The packages folder can be ignored because of the `project.assets.json` file being used for restoring packages.
+# Uncomment if you have the `NuGet.config` in this repository and want to ignore packages folder from subdirectories.
+#!**/[Pp]ackages/build/
+#!**/[Pp]ackages/rebuild/
+#!**/[Pp]ackages/![Ll]og.txt
+!**/[Pp]ackages/[Pp]ackageId/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Windows image file caches ##
+Thumbs.db
+ehthumbs.db
+
+## Folder config file ##
+Desktop.ini
+
+## Recycle Bin used on file shares ##
+$RECYCLE.BIN/
+
+## Windows 7/8/10+
+*.lock
+*.lnk
+
+## JetBrains Rider ##
+.idea/
+
+## Rider settings ##
+.idea/
+
+# VS Code directories
+.vscode/
+.vscode/*
+
+## Local History
+.localhistory/
+
+# NCrunch
+*.ncrunchsolution
+*.ncrunchproject
+*.ncrunchreferences
