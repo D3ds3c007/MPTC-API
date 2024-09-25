@@ -18,13 +18,16 @@ namespace MPTC_API.Controllers
         [HttpPost(Name = "authentication")]
         public async Task<IActionResult> Authentication([FromBody] MemberDTO MemberDTO)
         {
+            string token = null;
             try{
                 Member member = _context.Members.Where(m => m.Email == MemberDTO.Email).FirstOrDefault();
                 Session.authenticate(member, MemberDTO.Password);
+                token = Session.GenerateJwtToken(member);
+
             }catch(Exception e){
                 return Unauthorized(e.Message);
             }
-            return Ok();
+            return Ok(token);
         }
 
     }
