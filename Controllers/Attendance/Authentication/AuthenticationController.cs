@@ -24,7 +24,7 @@ namespace MPTC_API.Controllers
                 member = _context.Members.Where(m => m.Email == MemberDTO.Email).FirstOrDefault();
                 Session.authenticate(member, MemberDTO.Password);
                 token = Session.GenerateJwtToken(member);
-                return Ok(MemberDTO);
+                return Ok(new {token = token});
 
 
             }catch(Exception e){

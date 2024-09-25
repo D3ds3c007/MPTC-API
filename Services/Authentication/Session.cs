@@ -15,23 +15,33 @@ namespace MPTC_API.Services.Authentication
         public static bool authenticate(Member member, String plainTextPassword)
         {
             if(member==null){
-                throw new Exception("User not found");
+                throw new Exception("An error occurred. Please try again later.");
             }
             //verify member password using bcrypt match
             if(BCrypt.Net.BCrypt.Verify(plainTextPassword, member.Password)){
                 return true ;   
             }
-            throw new Exception("Invalid credientials");
+            throw new Exception("An error occurred. Please try again later.");
         }
 
         public static string GenerateJwtToken(Member member)
         {
+            string url = "";
+            switch(member.Staff.Privilege.PrivilegeName){
+                case "administrator":
+                    url = "http://localhost:3000/dashboard/administrator";
+                    break;
+                case "professor":
+                    url = "http://localhost:3000/dashboard/professor";
+                    break;
+            }
            //create
            var claims = new[]
            {
-                new Claim(ClaimTypes.NameIdentifier, member.IdMember.ToString()),
-                new Claim(ClaimTypes.Email, member.Email),
-                new Claim(ClaimTypes.Role, member.Staff.Privilege.PrivilegeName)
+                new Claim("id", member.IdMember.ToString()),
+                new Claim("email", member.Email),
+                new Claim("role", member.Staff.Privilege.PrivilegeName),
+                new Claim("url", url)
            };
 
            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("K/RQJAY2USUtsgqE3bKzdIVX4DXX3jYB7M6z0RYyigQ="));
