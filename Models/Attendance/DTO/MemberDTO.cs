@@ -10,6 +10,7 @@ namespace MPTC_API.Models.Attendance.MemberDTO
         [Required(ErrorMessage = "Password is required and cannot be empty")]
         public String Password { get; set; }
 
+
        
     }
 

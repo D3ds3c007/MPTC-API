@@ -7,7 +7,7 @@ using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Models.Attendance.MemberDTO;
 
-namespace MPTC_API.Models.Authentication
+namespace MPTC_API.Services.Authentication
 {
     public class Session
     {
