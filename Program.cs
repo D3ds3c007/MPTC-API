@@ -14,9 +14,19 @@ builder.Services.AddDbContext<MptcContext>(options =>
 
 // Add services to the container.
 // Add Identity services
-builder.Services.AddIdentity<Member, IdentityRole>()
+builder.Services.AddIdentity<Member, IdentityRole>(options =>
+{
+        options.Tokens.PasswordResetTokenProvider = "Default";
+        options.User.RequireUniqueEmail = true;
+
+})
     .AddEntityFrameworkStores<MptcContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromMinutes(5); // Set your desired expiration time
+});
     
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

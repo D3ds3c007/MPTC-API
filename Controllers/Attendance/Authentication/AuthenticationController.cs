@@ -53,13 +53,32 @@ namespace MPTC_API.Controllers
             string resetToken = await _userManager.GeneratePasswordResetTokenAsync(member);
 
             //generate reset link
+
             string resetLink = "http://localhost:5000/api/v1/authentication/reset-password?email=" + passwordResetRequest.Email + "&token=" + resetToken;
 
             //send email
-            await _emailService.SendEmailAsync(member.Email, resetLink);
+            // await _emailService.SendEmailAsync(member.Email, resetLink);
 
             Console.WriteLine(resetLink + "hehe");
             return Ok(new {resetUrl = resetLink});
+        }
+
+        [HttpGet("verify-reset-token")]
+        public async Task<IActionResult> VerifyResetToken(string email, string token)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if(user == null)
+            {
+                return BadRequest(new { message = "User not found" });
+            }
+            // Logic to verify the token, e.g., check in the database
+            var isValid = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "ResetPassword", token);
+            if (isValid)
+            {
+                return Ok(new { message = "Token is valid" });
+            }
+
+            return BadRequest(new { message = "Token is invalid or expired" });
         }
 
        
