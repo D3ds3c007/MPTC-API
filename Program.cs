@@ -1,9 +1,23 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using MPTC_API.Data;
+using MPTC_API.Models.Attendance;
+using MPTC_API.Services.Authentication;
+
 var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+//Add db context for postgresql
+builder.Services.AddDbContext<MptcContext>(options =>
+    options.UseNpgsql("Host=localhost;Database=mptc_db;Username=postgres;Password=root;"));
 
+// Add services to the container.
+// Add Identity services
+builder.Services.AddIdentity<Member, IdentityRole>()
+    .AddEntityFrameworkStores<MptcContext>()
+    .AddDefaultTokenProviders();
+    
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -20,6 +34,9 @@ builder.Services.AddCors(options =>
                                 .AllowAnyMethod();
                       });
 });
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 
 
 

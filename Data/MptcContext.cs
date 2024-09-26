@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Models.BigData;
@@ -7,7 +8,7 @@ using MPTC_API.Models.Education;
 
 namespace MPTC_API.Data;
 
-public partial class MptcContext : DbContext
+public partial class MptcContext : IdentityDbContext<Member>
 {
       public MptcContext()
     {
@@ -25,7 +26,7 @@ public partial class MptcContext : DbContext
 
       protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        OnModelCreatingPartial(modelBuilder);
+        base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<Staff>()
             .HasOne(s => s.Venue)
