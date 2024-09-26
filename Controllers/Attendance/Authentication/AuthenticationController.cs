@@ -5,6 +5,10 @@ using MPTC_API.Models.Attendance;
 using MPTC_API.Models.Attendance.MemberDTO;
 using MPTC_API.Services.Authentication;
 using Microsoft.AspNetCore.Identity;
+using System.Net;
+using System.Web;
+using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 
 
 namespace MPTC_API.Controllers
@@ -15,6 +19,8 @@ namespace MPTC_API.Controllers
     {
         private readonly UserManager<Member> _userManager;
         private readonly IEmailService _emailService;
+
+
 
 
         public MptcContext _context = new MptcContext();
@@ -44,41 +50,73 @@ namespace MPTC_API.Controllers
         }
 
         [HttpPost("request-password-reset")]
+        
         public async Task<IActionResult> RequestPasswordReset([FromBody] PasswordResetRequest passwordResetRequest)
         {
-            Member member = _context.Members.Where(m => m.Email == passwordResetRequest.Email).FirstOrDefault();
+            Member member = await _userManager.FindByEmailAsync(passwordResetRequest.Email);
             if(member == null){
                 return NotFound("No user found with this email");
             }
+
             string resetToken = await _userManager.GeneratePasswordResetTokenAsync(member);
+
+            string resetTokenEncoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetToken));
+
+            Console.WriteLine($"Newly Generated Token: {resetTokenEncoded} Length: {resetTokenEncoded.Length}");
+            Console.WriteLine($"Token : {resetToken} Length: {resetToken.Length}");
+
 
             //generate reset link
 
-            string resetLink = "http://localhost:5000/api/v1/authentication/reset-password?email=" + passwordResetRequest.Email + "&token=" + resetToken;
-
+            string resetLink = "http://localhost:3000/api/v1/authentication/reset-password?email=" + passwordResetRequest.Email + "&token=" + resetTokenEncoded;
+            
+            
             //send email
             // await _emailService.SendEmailAsync(member.Email, resetLink);
 
-            Console.WriteLine(resetLink + "hehe");
             return Ok(new {resetUrl = resetLink});
         }
 
         [HttpGet("verify-reset-token")]
         public async Task<IActionResult> VerifyResetToken(string email, string token)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if(user == null)
+            try
             {
-                return BadRequest(new { message = "User not found" });
-            }
-            // Logic to verify the token, e.g., check in the database
-            var isValid = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "ResetPassword", token);
-            if (isValid)
-            {
-                return Ok(new { message = "Token is valid" });
-            }
+                Member user = await _userManager.FindByEmailAsync(email);
 
-            return BadRequest(new { message = "Token is invalid or expired" });
+                byte[] decodedTokenBytes = WebEncoders.Base64UrlDecode(token);
+
+
+                string decodedToken =  Encoding.UTF8.GetString(decodedTokenBytes);
+
+                 Console.WriteLine($"Decoded token: {decodedToken}");
+
+    
+                
+
+                Console.WriteLine(user);
+                if(user == null)
+                {
+                    return BadRequest(new { message = "User not found" });
+                }
+
+            
+                var purpose = UserManager<Member>.ResetPasswordTokenPurpose;
+                Console.WriteLine(purpose);
+                 // Verify the token
+                var isValid = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, purpose , decodedToken);
+                if (isValid)
+                {
+                    return Ok(new { message = "Token is valid." });
+                }
+
+                return BadRequest(new { message = "Token is invalid or expired" });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        
         }
 
        

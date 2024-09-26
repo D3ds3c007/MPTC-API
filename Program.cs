@@ -16,7 +16,7 @@ builder.Services.AddDbContext<MptcContext>(options =>
 // Add Identity services
 builder.Services.AddIdentity<Member, IdentityRole>(options =>
 {
-        options.Tokens.PasswordResetTokenProvider = "Default";
+        options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultEmailProvider;
         options.User.RequireUniqueEmail = true;
 
 })
@@ -25,7 +25,7 @@ builder.Services.AddIdentity<Member, IdentityRole>(options =>
 
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
-    options.TokenLifespan = TimeSpan.FromMinutes(5); // Set your desired expiration time
+    options.TokenLifespan = TimeSpan.FromHours(1); // Set your desired expiration time
 });
     
 builder.Services.AddControllers();
