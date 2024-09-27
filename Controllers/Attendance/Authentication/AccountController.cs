@@ -10,6 +10,7 @@ using System.Web;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 
 namespace MPTC_API.Controllers
@@ -45,7 +46,7 @@ namespace MPTC_API.Controllers
             member.NormalizedEmail = MemberDTO.Email.ToUpper();
             member.Password = BCrypt.Net.BCrypt.HashPassword(MemberDTO.Password);
             member.LastModified = DateTime.Now.ToUniversalTime();
-            member.StaffId = 3;
+            member.StaffId = 1;
             
             IdentityResult result = await _userManager.CreateAsync(member, MemberDTO.Password);
             return Ok(result);
@@ -57,8 +58,8 @@ namespace MPTC_API.Controllers
             Member member = null;
             try{
                 member = _context.Members.Where(m => m.Email == MemberDTO.Email).FirstOrDefault();
-                Session.authenticate(member, MemberDTO.Password);
-                token = Session.GenerateJwtToken(member);
+                AccountService.authenticate(member, MemberDTO.Password);
+                token = AccountService.GenerateJwtToken(member);
                 return Ok(new {token = token});
 
 
@@ -76,34 +77,23 @@ namespace MPTC_API.Controllers
                 return NotFound("No user found with this email");
             }
 
-            string resetToken = await _userManager.GeneratePasswordResetTokenAsync(member);
-
+            string resetToken = AccountService.GeneratePasswordResetToken(member);
             Console.WriteLine($"Generated Token: {resetToken}");
 
 
-            // IdentityResult isValid = await _userManager.ResetPasswordAsync(member, resetToken, "Raitra123##@@Vip");
-
-            var code = "";
-            bool isValid = await _userManager.VerifyUserTokenAsync(member, _userManager.Options.Tokens.PasswordResetTokenProvider, UserManager<Member>.ResetPasswordTokenPurpose, resetToken);
-            Console.WriteLine(isValid);
-            //generate reset link
- 
-
-            string resetLink = "http://localhost:5193/api/v1/account/reset-password?userId=" + member.Id + "&token=" + HttpUtility.UrlEncode(resetToken);
+            string resetLink = "http://localhost:5193/api/v1/account/verify-reset-token?userId=" + member.Id + "&token=" + HttpUtility.UrlEncode(resetToken);
             
 
             //send email
-            // await _emailService.SendEmailAsync(member.Email, resetLink);
+            await _emailService.SendEmailAsync(member.Email, resetLink);
 
-         
-    
             Console.WriteLine(resetToken);
-            return Ok(new {token = resetLink});
+            return Ok(new {url = resetLink});
         }
 
 
-        [HttpGet( "reset-password")]
-        public async Task<IActionResult> ResetPassword([FromQuery] string userId, [FromQuery] string token)
+        [HttpGet( "verify-reset-token")]
+        public async Task<IActionResult> ValidateToken([FromQuery] string userId, [FromQuery] string token)
         {
             var member = await _userManager.FindByIdAsync(userId);
             if(member == null){
@@ -112,21 +102,13 @@ namespace MPTC_API.Controllers
 
             token = WebUtility.UrlDecode(token);
 
+            ClaimsPrincipal principal = AccountService.GetClaimsPrincipalFromToken(token);
+            if(principal == null){
+                return Unauthorized("Invalid token or expired token");
+            }
 
-            Console.WriteLine(token);
-
-           //change the password
-           IdentityResult result =  await _userManager.ResetPasswordAsync(member, token, "Raitra123##");
-            Console.WriteLine(_userManager.GetHashCode());
-
-           if(result.Succeeded)
-           {
-                return Ok(result.Succeeded);
-           }else{
-                return BadRequest(result.Errors);
-           }
-
-        
+            Console.WriteLine(principal.Identities.First().Claims.First().Value);
+            return Ok(new {message = "Token is valid"});
         }
 
         

@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
@@ -9,9 +10,9 @@ using MPTC_API.Models.Attendance.MemberDTO;
 
 namespace MPTC_API.Services.Authentication
 {
-    public class Session
+    public class AccountService
     {
-        
+        public static readonly string  Secret = "K/RQJAY2USUtsgqE3bKzdIVX4DXX3jYB7M6z0RYyigQ=";
         public static bool authenticate(Member member, String plainTextPassword)
         {
             if(member==null){
@@ -44,7 +45,7 @@ namespace MPTC_API.Services.Authentication
                 new Claim("url", url)
            };
 
-           var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("K/RQJAY2USUtsgqE3bKzdIVX4DXX3jYB7M6z0RYyigQ="));
+           var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Secret));
            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
            var token = new JwtSecurityToken(
@@ -56,6 +57,45 @@ namespace MPTC_API.Services.Authentication
 
             return new JwtSecurityTokenHandler().WriteToken(token);
 
+        }
+
+        public static string GeneratePasswordResetToken(Member member)
+        {
+             var tokenHandler = new JwtSecurityTokenHandler();
+             var key = Encoding.ASCII.GetBytes(Secret);
+        
+             var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                    Subject = new ClaimsIdentity(new[] {
+                        new Claim("UserID", member.Id.ToString()),
+                        new Claim(JwtRegisteredClaimNames.Email, member.Email)
+                    }),
+                    Expires = DateTime.UtcNow.AddMinutes(2), // Set token expiration
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+                
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        public static ClaimsPrincipal GetClaimsPrincipalFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(Secret);
+            try{
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+                return principal;
+            }
+            catch{
+                return null;
+            }
         }
     }
 
