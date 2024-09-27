@@ -9,6 +9,7 @@ using System.Net;
 using System.Web;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace MPTC_API.Controllers
@@ -45,7 +46,6 @@ namespace MPTC_API.Controllers
             member.Password = BCrypt.Net.BCrypt.HashPassword(MemberDTO.Password);
             member.LastModified = DateTime.Now.ToUniversalTime();
             member.StaffId = 3;
-            member.SecurityStamp = Guid.NewGuid().ToString();
             
             IdentityResult result = await _userManager.CreateAsync(member, MemberDTO.Password);
             return Ok(result);
@@ -78,49 +78,46 @@ namespace MPTC_API.Controllers
 
             string resetToken = await _userManager.GeneratePasswordResetTokenAsync(member);
 
-                Console.WriteLine($"Generated Token: {resetToken}");
+            Console.WriteLine($"Generated Token: {resetToken}");
 
 
             // IdentityResult isValid = await _userManager.ResetPasswordAsync(member, resetToken, "Raitra123##@@Vip");
 
-            // bool isValid = await _userManager.VerifyUserTokenAsync(member, _userManager.Options.Tokens.PasswordResetTokenProvider, UserManager<Member>.ResetPasswordTokenPurpose, resetToken);
-            
+            var code = "";
+            bool isValid = await _userManager.VerifyUserTokenAsync(member, _userManager.Options.Tokens.PasswordResetTokenProvider, UserManager<Member>.ResetPasswordTokenPurpose, resetToken);
+            Console.WriteLine(isValid);
             //generate reset link
+ 
 
-            string resetLink = "http://localhost:3000/api/v1/authentication/reset-password?email=" + passwordResetRequest.Email + "&token=" + resetToken;
+            string resetLink = "http://localhost:5193/api/v1/account/reset-password?userId=" + member.Id + "&token=" + HttpUtility.UrlEncode(resetToken);
             
-            resetToken =  WebUtility.UrlEncode(resetToken);
+
             //send email
             // await _emailService.SendEmailAsync(member.Email, resetLink);
 
-            // Set a cookie with the reset token
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true, // Prevent JavaScript access to this cookie
-                Secure = true,   // Ensure it's sent over HTTPS only (set to true in production)
-                SameSite = SameSiteMode.Strict, // Ensures the cookie is sent only with same-site requests
-                Expires = DateTime.UtcNow.AddMinutes(30) // Cookie expiry time, adjust as necessary
-            };
+         
     
-            // Store the reset token in the cookie
-            HttpContext.Response.Cookies.Append("PasswordResetToken", resetToken, cookieOptions);
-
-            return Ok(new {token = resetToken});
+            Console.WriteLine(resetToken);
+            return Ok(new {token = resetLink});
         }
 
 
         [HttpGet( "reset-password")]
-        public async Task<IActionResult> ResetPassword([FromQuery] string email, [FromQuery] string token)
+        public async Task<IActionResult> ResetPassword([FromQuery] string userId, [FromQuery] string token)
         {
-            var member = await _userManager.FindByEmailAsync(email);
+            var member = await _userManager.FindByIdAsync(userId);
             if(member == null){
                 return NotFound("No user found with this email");
             }
 
-            
+            token = WebUtility.UrlDecode(token);
+
+
+            Console.WriteLine(token);
 
            //change the password
            IdentityResult result =  await _userManager.ResetPasswordAsync(member, token, "Raitra123##");
+            Console.WriteLine(_userManager.GetHashCode());
 
            if(result.Succeeded)
            {
