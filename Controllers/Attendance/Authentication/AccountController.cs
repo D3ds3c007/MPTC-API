@@ -81,16 +81,41 @@ namespace MPTC_API.Controllers
             Console.WriteLine($"Generated Token: {resetToken}");
 
 
-            string resetLink = "http://localhost:5193/api/v1/account/verify-reset-token?userId=" + member.Id + "&token=" + HttpUtility.UrlEncode(resetToken);
+            string resetLink = "http://localhost:3000/accounts/reset-password?userId=" + member.Id + "&token=" + HttpUtility.UrlEncode(resetToken);
             
 
             //send email
             await _emailService.SendEmailAsync(member.Email, resetLink);
 
             Console.WriteLine(resetToken);
-            return Ok(new {url = resetLink});
+            return Ok(new {message = "Password reset link sent to your email if it exists"});
         }
 
+        [HttpPut("reset-password?userId={userId}&token={code}")]
+        public async Task<IActionResult> ResetPassword([FromBody] PasswordResetRequest passwordResetRequest, string userId, string code)
+        {
+            var member = await _userManager.FindByEmailAsync(passwordResetRequest.Email);
+            if(member == null){
+                return NotFound("No user found with this email");
+            }
+
+            var token = WebUtility.UrlDecode(code);
+
+            ClaimsPrincipal principal = AccountService.GetClaimsPrincipalFromToken(token);
+            if(principal == null){
+                return Unauthorized("Invalid token or expired token");
+            }
+            
+            if(passwordResetRequest.Password != passwordResetRequest.ConfirmPassword){
+                return BadRequest("Passwords do not match");
+            }
+
+            var newPassword = BCrypt.Net.BCrypt.HashPassword(passwordResetRequest.Password);
+            member.Password = newPassword;
+            await _userManager.UpdateAsync(member);
+
+            return Ok(new {message = "Password reset successful"});
+        }
 
         [HttpGet( "verify-reset-token")]
         public async Task<IActionResult> ValidateToken([FromQuery] string userId, [FromQuery] string token)
@@ -110,6 +135,8 @@ namespace MPTC_API.Controllers
             Console.WriteLine(principal.Identities.First().Claims.First().Value);
             return Ok(new {message = "Token is valid"});
         }
+
+
 
         
 
