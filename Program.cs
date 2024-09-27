@@ -16,7 +16,7 @@ builder.Services.AddDbContext<MptcContext>(options =>
 // Add Identity services
 builder.Services.AddIdentity<Member, IdentityRole>(options =>
 {
-        options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultEmailProvider;
+        options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
         options.User.RequireUniqueEmail = true;
 
 })

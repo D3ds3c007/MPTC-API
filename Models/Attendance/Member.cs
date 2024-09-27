@@ -8,9 +8,6 @@ namespace MPTC_API.Models.Attendance
         [Key]
         public int IdMember { get; set; }
 
-        [Required(ErrorMessage = "Email is required and cannot be empty")]
-        public String Email { get; set; }
-
         [Required(ErrorMessage = "Password is required and cannot be empty")]
         public String Password { get; set; }
 
