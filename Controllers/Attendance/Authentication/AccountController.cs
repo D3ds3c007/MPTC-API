@@ -1,15 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using MPTC_API.Data;
-using BCrypt.Net;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Models.Attendance.MemberDTO;
 using MPTC_API.Services.Authentication;
 using Microsoft.AspNetCore.Identity;
 using System.Net;
 using System.Web;
-using System.Text;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 
@@ -51,7 +47,7 @@ namespace MPTC_API.Controllers
             IdentityResult result = await _userManager.CreateAsync(member, MemberDTO.Password);
             return Ok(result);
         }
-        [HttpPost(Name = "authentication")]
+        [HttpPost("authentication")]
         public async Task<IActionResult> Authentication([FromBody] MemberDTO MemberDTO)
         {
             string token = null;
@@ -91,10 +87,10 @@ namespace MPTC_API.Controllers
             return Ok(new {message = "Password reset link sent to your email if it exists"});
         }
 
-        [HttpPut("reset-password?userId={userId}&token={code}")]
-        public async Task<IActionResult> ResetPassword([FromBody] PasswordResetRequest passwordResetRequest, string userId, string code)
+        [HttpPut("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] PasswordResetRequest passwordResetRequest, [FromQuery] string userId, [FromQuery] string code)
         {
-            var member = await _userManager.FindByEmailAsync(passwordResetRequest.Email);
+            var member = await _userManager.FindByIdAsync(userId);
             if(member == null){
                 return NotFound("No user found with this email");
             }
@@ -107,7 +103,8 @@ namespace MPTC_API.Controllers
             }
             
             if(passwordResetRequest.Password != passwordResetRequest.ConfirmPassword){
-                return BadRequest("Passwords do not match");
+                //
+                return BadRequest("Passwords do not match. Please make sure both fields are identical.");
             }
 
             var newPassword = BCrypt.Net.BCrypt.HashPassword(passwordResetRequest.Password);

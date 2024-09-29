@@ -70,7 +70,7 @@ namespace MPTC_API.Services.Authentication
                         new Claim("UserID", member.Id.ToString()),
                         new Claim(JwtRegisteredClaimNames.Email, member.Email)
                     }),
-                    Expires = DateTime.UtcNow.AddMinutes(2), // Set token expiration
+                    Expires = DateTime.UtcNow.AddMinutes(30), // Set token expiration
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
                 
             };
