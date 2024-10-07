@@ -25,6 +25,12 @@ namespace MPTC_API.Controllers
 
         }
 
+        [HttpGet("venues")]
+        public async Task<IActionResult> GetVenues()
+        {
+           List<VenueDTO> venueDTOs = DataService.GetVenueDTOs(_context);
+            return Ok(venueDTOs);
+        }
 
 
 
