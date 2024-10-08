@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
+using MPTC_API.Services;
 using MPTC_API.Services.Authentication;
 
 var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -46,6 +47,9 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<RecognitionService>();
+//add Recognition service
+
 
 
 

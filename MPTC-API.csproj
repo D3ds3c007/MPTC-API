@@ -9,6 +9,10 @@
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="DlibDotNet" Version="19.21.0.20220724" />
+    <PackageReference Include="Emgu.CV" Version="4.9.0.5494" />
+    <PackageReference Include="Emgu.CV.Bitmap" Version="4.9.0.5494" />
+    <PackageReference Include="Emgu.CV.runtime.windows" Version="4.9.0.5494" />
     <PackageReference Include="MailKit" Version="4.7.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
@@ -18,11 +22,13 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.19.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
     <PackageReference Include="SendGrid" Version="9.29.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.0" />
+    <PackageReference Include="YoloV8" Version="4.1.7" />
   </ItemGroup>
 
 </Project>

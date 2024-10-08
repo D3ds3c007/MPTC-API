@@ -68,7 +68,7 @@ namespace MPTC_API.Services.Attendance
                 return staff;
 
             }catch(Exception e){
-                throw new Exception("An error occurred during employee registration. Please try again later.");
+                throw new Exception("An error occurred during employee registration. Please try again later.\n Error: " + e.Message);
             }
                   
                 
