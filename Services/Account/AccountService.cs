@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
@@ -14,16 +15,27 @@ namespace MPTC_API.Services.Authentication
     {
         public static readonly string  Secret = "K/RQJAY2USUtsgqE3bKzdIVX4DXX3jYB7M6z0RYyigQ=";
 
-        public static Member register(Staff staff)
+        public static async Task<IdentityResult> RegisterAsync(Staff staff, UserManager<Member> _userManager, string password)
         {
             Member member = new Member();
-            member.UserName = staff.FirstName;
+
+
+            member.UserName = staff.FirstName.Replace(" ", "") + staff.StaffName.Replace(" ", "");
             member.Email = staff.EmailAddress;
             member.NormalizedEmail = staff.EmailAddress.ToUpper();
-            member.Password = BCrypt.Net.BCrypt.HashPassword("Raitra123##@@Vip");
+            member.Password = BCrypt.Net.BCrypt.HashPassword(password);
             member.LastModified = DateTime.Now.ToUniversalTime();
             member.StaffId = staff.IdStaff;
-            return member;
+
+            IdentityResult result = await _userManager.CreateAsync(member, password);
+
+            //display the result
+
+            result.Errors.ToList().ForEach(error => {
+                Console.WriteLine(error.Description);
+            });
+
+            return result;
         }
         public static bool authenticate(Member member, String plainTextPassword)
         {

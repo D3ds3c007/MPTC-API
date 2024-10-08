@@ -17,16 +17,18 @@ namespace MPTC_API.Controllers
     public class DataController : ControllerBase
     {
         private readonly UserManager<Member> _userManager;
+        private readonly IEmailService _emailService;
+
 
 
 
 
         public MptcContext _context = new MptcContext();
 
-        public DataController(UserManager<Member> userManager)
+        public DataController(UserManager<Member> userManager, IEmailService emailService)
         {
             _userManager = userManager;
-
+            _emailService = emailService;
         }
 
         [HttpGet("form-data")]
@@ -41,29 +43,7 @@ namespace MPTC_API.Controllers
         {
             try{
 
-
-                //Create Staff object
-
-                Staff staff = new Staff();
-                //Personal Information
-                staff.FirstName = formData.GetProperty("firstName").GetString();
-                staff.StaffName = formData.GetProperty("name").GetString();
-                staff.Birth = DateTime.Parse(formData.GetProperty("birthDate").GetString()).ToUniversalTime();
-                staff.Gender = formData.GetProperty("gender").GetString();
-                staff.MaritalStatus = formData.GetProperty("maritalStatus").GetString();
-                staff.NationalityId =  Int32.Parse(formData.GetProperty("Nationality").GetString());
-                staff.HomeAddress = "N/A";
-
-                //Job Information
-                staff.VenueId = Int32.Parse(formData.GetProperty("venue").GetString());
-                staff.PhoneNumber = formData.GetProperty("phoneNumber").GetString();
-                staff.EmailAddress = formData.GetProperty("email").GetString();
-                staff.IDCardNumber = formData.GetProperty("idCard").GetString();
-                staff.PrivilegeId = Int32.Parse(formData.GetProperty("role").GetString());
-
-                _context.Add(staff);
-                _context.SaveChanges();
-                
+                StaffService.AddStaff(formData, _context, _userManager, _emailService);
                 //Create the staff schedule
                 List<Schedule> schedules = new List<Schedule>();
 

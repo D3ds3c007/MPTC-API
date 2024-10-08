@@ -9,12 +9,15 @@ namespace MPTC_API.Services.Authentication
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(string toEmail, string token);
+        Task SendEmailAsync(string toEmail, string subject, string messageBody);
+        Task SendPasswordResetEmail(string toEmail, string resetLink);
+        Task SendWelcomeEmail(string toEmail, string password);
+        
     }
 }
 namespace MPTC_API.Services.Authentication
 {
-    public class EmailService : IEmailService
+        public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
 
@@ -22,7 +25,9 @@ namespace MPTC_API.Services.Authentication
         {
             _configuration = configuration; 
         }
-        public async Task SendEmailAsync(string toEmail, string resetLink)
+
+        // The updated SendEmailAsync method with dynamic subject and message body
+        public async Task SendEmailAsync(string toEmail, string subject, string messageBody)
         {
             var smtpSettings = _configuration.GetSection("SmtpSettings");
             var email = smtpSettings["Username"];
@@ -30,17 +35,19 @@ namespace MPTC_API.Services.Authentication
             var host = smtpSettings["Host"];
             var port = int.Parse(smtpSettings["Port"]);
 
-             var message = new MimeMessage();
+            // Construct the email
+            var message = new MimeMessage();
             message.From.Add(new MailboxAddress("MPTC Security System", email));
             message.To.Add(new MailboxAddress("Recipient Name", toEmail));
-            message.Subject = "Your reset password URL";
+            message.Subject = subject;  // Use the dynamic subject
 
+            // Set the message body as dynamic HTML content
             message.Body = new TextPart("html")
             {
-                Text = $"<p>Please click the link to verify your account:</p><p><a href='{resetLink}'>Reset Password</a></p>"
+                Text = messageBody  // Use the dynamic message body
             };
 
-             // Send the email
+            // Send the email using SMTP
             using (var client = new SmtpClient())
             {
                 await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.StartTls);
@@ -48,15 +55,25 @@ namespace MPTC_API.Services.Authentication
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
             }
-
-        
         }
 
-        public Task SendEmailAsync(string email, string subject, string message)
+        public  async Task SendPasswordResetEmail(string toEmail, string resetLink)
         {
-            throw new NotImplementedException();
+            string subject = "Reset your password";
+            string messageBody = $"<p>Please click the link to reset your password:</p><p><a href='{resetLink}'>Reset Password</a></p>";
+
+            await SendEmailAsync(toEmail, subject, messageBody);
+        }
+
+        public async Task SendWelcomeEmail(string toEmail, string password)
+        {
+            string subject = "Welcome to MPTC!";
+            string messageBody = $"<p>Your account has been created successfully. Your password is: {password}</p>";
+
+            await SendEmailAsync(toEmail, subject, messageBody);
         }
     }
+
     
 }
 

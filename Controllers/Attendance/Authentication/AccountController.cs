@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Net;
 using System.Web;
 using System.Security.Claims;
+using MPTC_API.Models.DTO.MessageDTO;
 
 
 namespace MPTC_API.Controllers
@@ -78,12 +79,12 @@ namespace MPTC_API.Controllers
 
 
             string resetLink = "http://localhost:3000/accounts/reset-password?userId=" + member.Id + "&token=" + HttpUtility.UrlEncode(resetToken);
-            
+        
 
-            //send email
-            await _emailService.SendEmailAsync(member.Email, resetLink);
+            //send email    
+            await _emailService.SendPasswordResetEmail(member.Email, resetLink);
 
-            Console.WriteLine(resetToken);
+          
             return Ok(new {message = "Password reset link sent to your email if it exists"});
         }
 
