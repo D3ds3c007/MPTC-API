@@ -13,6 +13,18 @@ namespace MPTC_API.Services.Authentication
     public class AccountService
     {
         public static readonly string  Secret = "K/RQJAY2USUtsgqE3bKzdIVX4DXX3jYB7M6z0RYyigQ=";
+
+        public static Member register(Staff staff)
+        {
+            Member member = new Member();
+            member.UserName = staff.FirstName;
+            member.Email = staff.EmailAddress;
+            member.NormalizedEmail = staff.EmailAddress.ToUpper();
+            member.Password = BCrypt.Net.BCrypt.HashPassword("Raitra123##@@Vip");
+            member.LastModified = DateTime.Now.ToUniversalTime();
+            member.StaffId = staff.IdStaff;
+            return member;
+        }
         public static bool authenticate(Member member, String plainTextPassword)
         {
             if(member==null){

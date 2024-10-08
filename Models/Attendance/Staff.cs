@@ -9,8 +9,7 @@ namespace MPTC_API.Models.Attendance
         [Key]
         public int IdStaff { get; set; }
 
-        [Required(ErrorMessage = "Matricule is required and cannot be empty")]
-        public String Matricule { get; set; }
+        public String? Matricule { get; set; }
 
         [Required(ErrorMessage = "StaffName is required and cannot be empty")]
         public String StaffName { get; set; }

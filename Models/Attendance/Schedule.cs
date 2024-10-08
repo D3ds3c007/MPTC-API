@@ -11,7 +11,7 @@ namespace MPTC_API.Models.Attendance
         public int StaffId { get; set; }
 
         [Required(ErrorMessage = "DayOfWeek is required and cannot be empty")]
-        public int DayOfWeek { get; set; }
+        public DayOfWeek DayOfWeek { get; set; }
 
         [Required(ErrorMessage = "Begin is required and cannot be empty")]
         public TimeSpan  Begin { get; set; }

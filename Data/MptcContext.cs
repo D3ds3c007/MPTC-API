@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Models.BigData;
 using MPTC_API.Models.Education;
+using MPTC_API.Services.Attendance;
 
 namespace MPTC_API.Data;
 
@@ -27,6 +28,10 @@ public partial class MptcContext : IdentityDbContext<Member>
       protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+         modelBuilder.HasSequence<int>("public.matriculesequence")
+                    .StartsAt(1000)
+                    .IncrementsBy(1);
 
         modelBuilder.Entity<Staff>()
             .HasOne(s => s.Venue)
@@ -154,6 +159,44 @@ public partial class MptcContext : IdentityDbContext<Member>
             .HasForeignKey(t => t.NationalityId);
 
     }
+
+   
+
+    public override int SaveChanges()
+    {
+        foreach (var entry in ChangeTracker.Entries<Staff>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                int nextSequenceValue;
+
+                // Get the next sequence value from the database
+                using (var command = Database.GetDbConnection().CreateCommand())
+                {
+                    command.CommandText = "SELECT nextval('\"matriculesequence\"')";
+                    Database.OpenConnection();
+
+                    using (var result = command.ExecuteReader())
+                    {
+                        if (result.Read())
+                        {
+                            nextSequenceValue = result.GetInt32(0); // Get the value of the first column
+                        }
+                        else
+                        {
+                            nextSequenceValue = 0; // Default value if nothing is returned
+                        }
+                    }
+                }
+
+                // Generate the custom matricule
+                entry.Entity.Matricule = StaffService.GenerateMatricule(entry.Entity.FirstName + " " + entry.Entity.StaffName, nextSequenceValue, DateTime.Now, entry.Entity.VenueId);
+            }
+        }
+
+        return base.SaveChanges();
+    }
+
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 

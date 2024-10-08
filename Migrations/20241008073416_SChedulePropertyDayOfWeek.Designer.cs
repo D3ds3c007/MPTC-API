@@ -3,6 +3,7 @@ using System;
 using MPTC_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MPTC_API.Migrations
 {
     [DbContext(typeof(MptcContext))]
-    partial class MptcContextModelSnapshot : ModelSnapshot
+    [Migration("20241008073416_SChedulePropertyDayOfWeek")]
+    partial class SChedulePropertyDayOfWeek
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,9 +27,6 @@ namespace MPTC_API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.HasSequence<int>("public.matriculesequence")
-                .StartsAt(1000L);
 
             modelBuilder.Entity("MPTC_API.Models.Attendance.Log", b =>
                 {
@@ -283,6 +283,7 @@ namespace MPTC_API.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Matricule")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("NationalityId")
