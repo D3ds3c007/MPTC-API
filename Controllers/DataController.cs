@@ -3,6 +3,7 @@ using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Services.Authentication;
 using Microsoft.AspNetCore.Identity;
+using MPTC_API.Models.Attendance.MemberDTO;
 
 
 
@@ -25,11 +26,11 @@ namespace MPTC_API.Controllers
 
         }
 
-        [HttpGet("venues")]
+        [HttpGet("form-data")]
         public async Task<IActionResult> GetVenues()
         {
-           List<VenueDTO> venueDTOs = DataService.GetVenueDTOs(_context);
-            return Ok(venueDTOs);
+            EmployeeFormDataDTO employeeFormDataDTO = DataService.GetEmployeeFormDataDTO(_context);
+            return Ok(employeeFormDataDTO);
         }
 
 

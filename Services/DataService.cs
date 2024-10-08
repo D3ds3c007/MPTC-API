@@ -25,6 +25,49 @@ namespace MPTC_API.Services.Authentication
             }
             return venueDTOs;
         }
+
+        public static List<PrivilegeDTO> GetPrivilegeDTOs(MptcContext context)
+        {
+            List<PrivilegeDTO> privilegeDTOs = new List<PrivilegeDTO>();
+            List<Privilege> privileges = context.Privileges.ToList();
+            foreach (Privilege privilege in privileges)
+            {
+                PrivilegeDTO privilegeDTO = new PrivilegeDTO();
+                privilegeDTO.IdPrivilege = privilege.IdPrivilege;
+                privilegeDTO.Name = privilege.PrivilegeName;
+                privilegeDTOs.Add(privilegeDTO);
+            }
+            return privilegeDTOs;
+        }
+
+        //list of nationalities using DTO
+        public static List<NationalityDTO> GetNationalities(MptcContext context)
+        {
+            List<NationalityDTO> nationalityDTOs = new List<NationalityDTO>();
+            List<Nationality> nationalities = context.Nationalitys.ToList();
+
+            foreach (Nationality nationality in nationalities)
+            {
+                //map to nationalityDTOs
+                NationalityDTO nationalityDTO = new NationalityDTO();
+                nationalityDTO.IdNationality = nationality.IdNationality;
+                nationalityDTO.Name = nationality.NationalityName; 
+                nationalityDTOs.Add(nationalityDTO);                    
+            }
+
+            return nationalityDTOs;
+
+        }
+
+        //get EmployeeFormDataDTO
+        public static EmployeeFormDataDTO GetEmployeeFormDataDTO(MptcContext _context)
+        {
+            EmployeeFormDataDTO employeeFormDataDTO = new EmployeeFormDataDTO();
+            employeeFormDataDTO.Venues = GetVenueDTOs(_context);
+            employeeFormDataDTO.Privileges = GetPrivilegeDTOs(_context);
+            employeeFormDataDTO.Nationalities = GetNationalities(_context);
+            return employeeFormDataDTO;
+        }
     }
 
    
