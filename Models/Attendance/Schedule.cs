@@ -14,10 +14,10 @@ namespace MPTC_API.Models.Attendance
         public int DayOfWeek { get; set; }
 
         [Required(ErrorMessage = "Begin is required and cannot be empty")]
-        public DateTime Begin { get; set; }
+        public TimeSpan  Begin { get; set; }
 
         [Required(ErrorMessage = "End is required and cannot be empty")]
-        public DateTime End { get; set; }
+        public  TimeSpan  End { get; set; }
 
         //navigation property
         public virtual Staff Staff { get; set; }
