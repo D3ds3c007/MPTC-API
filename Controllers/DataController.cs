@@ -20,7 +20,6 @@ namespace MPTC_API.Controllers
     {
         private readonly UserManager<Member> _userManager;
         private readonly IEmailService _emailService;
-
         private readonly RecognitionService _recognitionService;
 
 
@@ -47,53 +46,61 @@ namespace MPTC_API.Controllers
         public async Task<IActionResult> UploadEmployee([FromBody] JsonElement formData)
         {
             try{
-
-                ArrayEnumerator pictureArray = formData.GetProperty("picture").EnumerateArray();
                 
-                List<float[]> descriptors = _recognitionService.ExtractFaceDescriptorPerImage(pictureArray);
+                ArrayEnumerator pictureArray = formData.GetProperty("picture").EnumerateArray();
+                List<EmployeeImage> employeeImages = new List<EmployeeImage>();
+                
+                List<Dictionary<string, object>>  descriptors = _recognitionService.ExtractFaceDescriptorPerImage(pictureArray);
                 if(descriptors == null)
                 {
                     return BadRequest("No face detected in the uploaded image");
-                }else{
-                    return Ok(descriptors);
+                }
+                 
+                
+                Staff staff = StaffService.AddStaff(formData, _context, _userManager, _emailService);
+                //Create the staff schedule
+                List<Schedule> schedules = new List<Schedule>();
+
+                //Get all day of week string by id
+                foreach(DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+                {
+                    var scheduleOfDay = formData.GetProperty(day.ToString());
+                    if(scheduleOfDay.GetProperty("open").GetBoolean())
+                    {
+
+                        TimeSpan begin = TimeSpan.Parse(scheduleOfDay.GetProperty("from").GetString());
+                        TimeSpan end = TimeSpan.Parse(scheduleOfDay.GetProperty("to").GetString());
+
+                        //create the schedule object and add it the schedules list
+                        schedules.Add(new Schedule
+                        {
+                            Staff = staff,
+                            DayOfWeek = day,
+                            Begin = begin,
+                            End = end
+                        });
+                        // Console.WriteLine($"{day.ToString()} is open from {begin} to {end}");
+                    }
+                   
                 }
 
-                // Staff staff = StaffService.AddStaff(formData, _context, _userManager, _emailService);
-                // //Create the staff schedule
-                // List<Schedule> schedules = new List<Schedule>();
+                _context.AddRange(schedules);
+                _context.SaveChanges();
 
-                // //Get all day of week string by id
-                // foreach(DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
-                // {
-                //     var scheduleOfDay = formData.GetProperty(day.ToString());
-                //     if(scheduleOfDay.GetProperty("open").GetBoolean())
-                //     {
-
-                //         TimeSpan begin = TimeSpan.Parse(scheduleOfDay.GetProperty("from").GetString());
-                //         TimeSpan end = TimeSpan.Parse(scheduleOfDay.GetProperty("to").GetString());
-
-                //         //create the schedule object and add it the schedules list
-                //         schedules.Add(new Schedule
-                //         {
-                //             Staff = staff,
-                //             DayOfWeek = day,
-                //             Begin = begin,
-                //             End = end
-                //         });
-                //         // Console.WriteLine($"{day.ToString()} is open from {begin} to {end}");
-                //     }
-                   
-                // }
-
-                // _context.AddRange(schedules);
-                // _context.SaveChanges();
-                
+                //loop descriptors
+                foreach (Dictionary<string, object> descriptor in descriptors)
+                {
+                    employeeImages.Add(new EmployeeImage{
+                        IdStaff = staff.IdStaff,
+                        Base64Image = (string) descriptor["picture"],
+                        Descriptor = descriptor["descriptor"] as float[]
+                    });
+                }
 
 
-               
-                
+                var result = _recognitionService.InsertEmployeeImages(employeeImages);
 
-             
+                return Ok("Staff registered successfully") ;               
             }
                 
                 

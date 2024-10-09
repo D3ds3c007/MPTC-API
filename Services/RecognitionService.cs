@@ -7,18 +7,26 @@ using DlibDotNet.Dnn;
 using DlibDotNet.Extensions;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using MongoDB.Driver;
+using MPTC_API.Models.Attendance;
 using static System.Text.Json.JsonElement;
 
 namespace MPTC_API.Services
 {
     public class RecognitionService
     {
+        private readonly IMongoCollection<EmployeeImage> _employeeImages;
         private static ShapePredictor _shapePredictor;
         private static LossMetric _net;
 
 
-        public RecognitionService()
+        public RecognitionService(IMongoClient mongoClient )
         {
+            var database = mongoClient.GetDatabase("admin"); // Replace with your database name
+            Console.WriteLine(database);
+            _employeeImages = database.GetCollection<EmployeeImage>("EmployeeImage");
+
+
             var ShapePredictorPath = Path.Combine(Directory.GetCurrentDirectory(), "Utils/Recognition/shape_predictor_68_face_landmarks.dat");
             var faceRecognitionModelPath = Path.Combine(Directory.GetCurrentDirectory(), "Utils/Recognition/dlib_face_recognition_resnet_model_v1.dat");
             _net = DlibDotNet.Dnn.LossMetric.Deserialize(faceRecognitionModelPath);
@@ -52,9 +60,9 @@ namespace MPTC_API.Services
             }
         }
 
-        public List<float[]>  ExtractFaceDescriptorPerImage(ArrayEnumerator pictureArray)
+        public List<Dictionary<string, Object>>  ExtractFaceDescriptorPerImage(ArrayEnumerator pictureArray)
         {
-            List<float[]> faceDescriptors = new List<float[]>();
+             List<Dictionary<string, Object>> faceDescriptors =  new List<Dictionary<string, Object>>();
             foreach(var picture in pictureArray)
             {
                 string base64String = picture.GetProperty("preview").GetString();
@@ -74,7 +82,13 @@ namespace MPTC_API.Services
                     {
                         DlibDotNet.Matrix<RgbPixel> matrix = result.ToMatrix<RgbPixel>();
                         var faceDescriptor = _net.Operator(matrix);
-                        faceDescriptors.Add(faceDescriptor.ToArray().SelectMany(x => x).ToArray());
+                        //Create the dictionnary, add base64string and the appropriate facedescriptor
+                        Dictionary<string, Object> metadata = new Dictionary<string, Object>
+                        {
+                            { "picture", base64String },
+                            { "descriptor", faceDescriptor.ToArray().SelectMany(x => x).ToArray() }
+                        };
+                        faceDescriptors.Add(metadata);
                     }
                 }else{
                     return null;
@@ -165,5 +179,10 @@ namespace MPTC_API.Services
             return new DlibDotNet.Rectangle(left, top, right, bottom);
         }
 
+        public async Task InsertEmployeeImages(List<EmployeeImage> employeeImage)
+        {
+            await _employeeImages.InsertManyAsync(employeeImage);
+
+        }
     }
 }

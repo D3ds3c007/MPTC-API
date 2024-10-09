@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Services;
@@ -48,9 +49,14 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<RecognitionService>();
-//add Recognition service
 
-
+//register mongodb service
+// Register MongoDB client
+builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
+{
+    var connectionString = "mongodb://localhost:27017/MPTC_db"; // MongoDB connection string
+    return new MongoClient(connectionString);
+});
 
 
 
