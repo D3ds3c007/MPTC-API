@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
-using MPTC_API.Models.Attendance.MemberDTO;
+using MPTC_API.Models.DTO.MemberDTO;
 using MPTC_API.Services.Authentication;
 using Microsoft.AspNetCore.Identity;
 using System.Net;

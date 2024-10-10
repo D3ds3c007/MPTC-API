@@ -184,5 +184,15 @@ namespace MPTC_API.Services
             await _employeeImages.InsertManyAsync(employeeImage);
 
         }
+
+        public async Task<List<EmployeeImage>> GetEmployeeImages()
+        {
+            return await _employeeImages.Find(image => true).ToListAsync();
+        }
+
+        public async Task<List<EmployeeImage>> GetEmployeeImage(int id)
+        {
+            return await _employeeImages.Find<EmployeeImage>(image => image.IdStaff == id).ToListAsync(); 
+        }
     }
 }

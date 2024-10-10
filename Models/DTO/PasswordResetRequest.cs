@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MPTC_API.Models.Attendance.MemberDTO
+namespace MPTC_API.Models.DTO.MemberDTO
 {
     public class PasswordResetRequest
     {

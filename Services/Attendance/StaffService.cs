@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
+using MPTC_API.Models.Attendance.StaffDTO;
 using MPTC_API.Services.Authentication;
 
 namespace MPTC_API.Services.Attendance
@@ -72,6 +73,47 @@ namespace MPTC_API.Services.Attendance
             }
                   
                 
+        }
+        
+        public static List<StaffDTO> GetStaffDTOs(MptcContext _context, RecognitionService _recognitionService)
+        {
+            List<Staff> staffs = _context.Staffs.ToList();
+            List<StaffDTO> staffDTOs = new List<StaffDTO>();
+            
+            if(staffs == null)
+            {
+                throw new Exception("No record found in database");
+            }
+            foreach(Staff staff in staffs)
+            {
+                 //map staff to staffdto
+                var pictures = _recognitionService.GetEmployeeImage(staff.IdStaff);
+                List<EmployeeImage> employeeImage = pictures.Result.ToList();
+                List<Schedule> schedules = staff.Schedules.ToList();
+                schedules.ForEach(schedule => schedule.Staff = null);
+
+                //make all descsriptor null in employeeImage using LINQ
+                employeeImage.ForEach(image => image.Descriptor = null);
+                StaffDTO staffDTO = new StaffDTO{
+                       IdStaff = staff.IdStaff,
+                       Matricule = staff.Matricule,
+                       FullName = staff.StaffName + " " + staff.FirstName,
+                       Birth = staff.Birth,
+                       Gender = staff.Gender,
+                       NationalId = staff.IDCardNumber,
+                       PhoneNumber = staff.PhoneNumber,
+                       Email = staff.EmailAddress,
+                       Nationality = staff.Nationality.NationalityName,
+                       Schedule = schedules,
+                       Privilege = staff.Privilege.PrivilegeName,
+                       Picture = employeeImage
+                };
+                staffDTOs.Add(staffDTO);
+             
+                
+            }
+             
+            return staffDTOs;
         }
 
         public static string GeneratePassword(int length)
