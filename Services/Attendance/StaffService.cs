@@ -98,7 +98,7 @@ namespace MPTC_API.Services.Attendance
                        IdStaff = staff.IdStaff,
                        Matricule = staff.Matricule,
                        FullName = staff.StaffName + " " + staff.FirstName,
-                       Birth = staff.Birth,
+                       Birth = staff.Birth.Date,
                        Gender = staff.Gender,
                        NationalId = staff.IDCardNumber,
                        PhoneNumber = staff.PhoneNumber,
