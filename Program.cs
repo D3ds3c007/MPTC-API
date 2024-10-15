@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
+using MPTC_API.Controllers.Attendance;
 using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Services;
@@ -48,7 +49,10 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<RecognitionService>();
+builder.Services.AddSingleton<RecognitionService>();
+builder.Services.AddSingleton<GlobalService>();
+builder.Services.AddSingleton<ClockInController>(); // Register ClockInController
+
 
 //register mongodb service
 // Register MongoDB client
@@ -57,6 +61,8 @@ builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
     var connectionString = "mongodb://localhost:27017/MPTC_db"; // MongoDB connection string
     return new MongoClient(connectionString);
 });
+builder.Services.AddHostedService<CameraStreamingService>(); // Register the background service
+
 
 
 
@@ -71,6 +77,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+var webSocketOptions = new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromSeconds(2),
+};
+app.UseWebSockets(webSocketOptions);
+
 app.UseHttpsRedirection();
 
 app.UseCors(MyAllowSpecificOrigins);
@@ -80,3 +92,20 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+public class CameraStreamingService : BackgroundService
+{
+    private readonly ClockInController _clockInController;
+
+    public CameraStreamingService(ClockInController cameraController)
+    {
+        _clockInController = cameraController;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        // Automatically start streaming when the service starts
+        await _clockInController.Index();
+    }
+}
