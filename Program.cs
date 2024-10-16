@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using MPTC_API.Controllers.Attendance;
+
 using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Services;
@@ -52,7 +53,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSingleton<RecognitionService>();
 builder.Services.AddSingleton<GlobalService>();
 builder.Services.AddSingleton<ClockInController>(); // Register ClockInController
-
+builder.Services.AddSingleton<ClockOutController>(); // Register ClockOutController
 
 //register mongodb service
 // Register MongoDB client
@@ -97,15 +98,23 @@ app.Run();
 public class CameraStreamingService : BackgroundService
 {
     private readonly ClockInController _clockInController;
+    private readonly ClockOutController _clockOutController;
 
-    public CameraStreamingService(ClockInController cameraController)
+
+    public CameraStreamingService(ClockInController cameraController, ClockOutController clockOutController)
     {
         _clockInController = cameraController;
+        _clockOutController = clockOutController;
+
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // Automatically start streaming when the service starts
-        await _clockInController.Index();
+        Task.Run( () => _clockInController.Index());
+
+        Task.Run( () => _clockOutController.Index());
+
     }
 }
+

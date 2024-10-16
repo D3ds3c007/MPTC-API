@@ -1,18 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using MPTC_API.Data;
-using MPTC_API.Models.Attendance;
-using MPTC_API.Services.Authentication;
-using Microsoft.AspNetCore.Identity;
-using MPTC_API.Models.Attendance.MemberDTO;
-using System.Text.Json;
-using EllipticCurve.Utils;
-using MPTC_API.Services.Attendance;
 using MPTC_API.Services;
-using static System.Text.Json.JsonElement;
-using MPTC_API.Models.Attendance.StaffDTO;
-using System.Text.RegularExpressions;
-using Emgu.CV;
-using Emgu.CV.CvEnum;
+
 using System.Net.WebSockets;
 using System.Text;
 
@@ -31,8 +19,8 @@ namespace MPTC_API.Controllers.Attendance
             _globalService = globalService;
         }
 
-        [HttpGet("/ws")]
-        public async Task WebSocketHandler()
+        [HttpGet("/wsIn")]
+        public async Task WebSocketInHandler()
         {
             var context = ControllerContext.HttpContext;
             if (context.WebSockets.IsWebSocketRequest)
@@ -40,7 +28,25 @@ namespace MPTC_API.Controllers.Attendance
                 Console.WriteLine("Websocket request");
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                GlobalService.ws = webSocket;
+                GlobalService.wsIn = webSocket;
+                await Echo(webSocket);
+            }
+            else
+            {
+                context.Response.StatusCode = 400;
+            }
+        }
+
+        [HttpGet("/wsOut")]
+        public async Task WebSocketOutHandler()
+        {
+            var context = ControllerContext.HttpContext;
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                Console.WriteLine("Websocket request");
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                GlobalService.wsOut = webSocket;
                 await Echo(webSocket);
             }
             else

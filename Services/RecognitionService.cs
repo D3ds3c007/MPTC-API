@@ -30,6 +30,7 @@ namespace MPTC_API.Services
 
 
 
+
         public RecognitionService(IMongoClient mongoClient )
         {
             var database = mongoClient.GetDatabase("admin"); // Replace with your database name
@@ -77,7 +78,7 @@ namespace MPTC_API.Services
             }
         }
 
-        public async Task ProcessFrames(VideoCapture capture, CancellationToken token)
+        public async Task ProcessFrames(VideoCapture capture, CancellationToken token, bool isIn)
         {
             var outFrame = new Image<Bgr, byte>(640, 480);
             var faceDetector = Dlib.GetFrontalFaceDetector();
@@ -91,11 +92,23 @@ namespace MPTC_API.Services
                             while (true)
                             {
                                 //wait for new weebsocket connection
-                                if (GlobalService.ws == null || GlobalService.ws.State != WebSocketState.Open)
+                                if(isIn)
                                 {
-                                    Console.WriteLine("Waiting for websocket connection");
-                                    await Task.Delay(1000);
-                                    continue;
+                                    if (GlobalService.wsIn == null || GlobalService.wsIn.State != WebSocketState.Open)
+                                    {
+                                        Console.WriteLine("Waiting for websocket In connection");
+                                        await Task.Delay(1000);
+                                        continue;
+                                    }
+
+                                }
+                                else{
+                                    if (GlobalService.wsOut == null || GlobalService.wsOut.State != WebSocketState.Open)
+                                    {
+                                        Console.WriteLine("Waiting for websocket Out connection");
+                                        await Task.Delay(1000);
+                                        continue;
+                                    }
                                 }
 
                                 try
@@ -126,15 +139,46 @@ namespace MPTC_API.Services
                                         var jsonMessage = System.Text.Json.JsonSerializer.Serialize(message);
 
                                         //Console.WriteLine($"Output frame size is {outFrame.Size} ");
-                                        Console.WriteLine("pass2" + " ws= " + GlobalService.ws);
-
-                                        if (GlobalService.ws.State == WebSocketState.Open)
+                                        switch (isIn)
                                         {
-                                            await GlobalService.ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonMessage)), WebSocketMessageType.Text, true, CancellationToken.None);
-                                            Console.WriteLine("Sent frame to client");
-                                        }else{
-                                            Console.WriteLine("Websocket is closed");
+                                            case true:
+                                                if (GlobalService.wsIn.State == WebSocketState.Open)
+                                                {
+                                                    await GlobalService.wsIn.SendAsync(
+                                                        new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonMessage)), 
+                                                        WebSocketMessageType.Text, 
+                                                        true, 
+                                                        CancellationToken.None
+                                                    );
+                                                    Console.WriteLine("Sent frame In to client");
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("WebSocket is closed");
+                                                }
+                                                break;  // Terminate the case after execution
+
+                                            case false:
+
+                                            if (GlobalService.wsOut.State == WebSocketState.Open)
+                                                {
+                                                    await GlobalService.wsOut.SendAsync(
+                                                        new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonMessage)), 
+                                                        WebSocketMessageType.Text, 
+                                                        true, 
+                                                        CancellationToken.None
+                                                    );
+                                                    Console.WriteLine("Sent frame Out to client");
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("WebSocket is closed");
+                                                }
+                                                break;  // Terminate the case after execution
                                         }
+
+
+                                        
 
 
                                     }

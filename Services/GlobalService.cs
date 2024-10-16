@@ -4,7 +4,9 @@ namespace MPTC_API.Services
 {
     public class GlobalService
     {
-        public static WebSocket ws { get; set; }
+        public static WebSocket wsIn { get; set; }
+        public static WebSocket wsOut { get; set; }
+
         public static bool isStarted = false;
 
 
