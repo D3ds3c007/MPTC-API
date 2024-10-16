@@ -17,6 +17,8 @@ namespace MPTC_API.Models.Education
         //navigation property
         public virtual Staff Staff { get; set; }
         public virtual Subject Subject { get; set; }
+        public virtual ICollection<Exam> Exams { get; set; }
+        public virtual ICollection<ResultNote> ResultNotes { get; set; }
 
     }
 

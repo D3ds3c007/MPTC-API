@@ -43,7 +43,6 @@ namespace MPTC_API.Models.Education
         public virtual Nationality Nationality { get; set; }
         public virtual ICollection<ResultNote> ResultNotes { get; set; }
         public virtual ICollection<StudentLevel> StudentLevels { get; set; }
-        public virtual ICollection<TempResult> TempResults { get; set; }
 
     }
 

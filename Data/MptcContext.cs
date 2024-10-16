@@ -77,10 +77,6 @@ public partial class MptcContext : IdentityDbContext<Member>
             .HasOne(s => s.Subject)
             .WithMany(st => st.Exams)
             .HasForeignKey(t => t.SubjectId);
-        modelBuilder.Entity<Exam>()
-            .HasOne(s => s.Staff)
-            .WithMany(st => st.Exams)
-            .HasForeignKey(t => t.StaffId);
         modelBuilder.Entity<Resource>()
             .HasOne(s => s.Staff)
             .WithMany(st => st.Resources)
@@ -101,18 +97,6 @@ public partial class MptcContext : IdentityDbContext<Member>
             .HasOne(s => s.Subject)
             .WithMany(st => st.SubjectSections)
             .HasForeignKey(t => t.SubjectId);
-        modelBuilder.Entity<TempResultSection>()
-            .HasOne(s => s.SubjectSection)
-            .WithMany(st => st.TempResultSections)
-            .HasForeignKey(t => t.SubjectSectionId);
-        modelBuilder.Entity<TempResult>()
-            .HasOne(s => s.Staff)
-            .WithMany(st => st.TempResults)
-            .HasForeignKey(t => t.StaffId);
-        modelBuilder.Entity<TempResultSection>()
-            .HasOne(s => s.TempResult)
-            .WithMany(st => st.TempResultSections)
-            .HasForeignKey(t => t.TempResultId);
         modelBuilder.Entity<SubjectSection>()
             .HasOne(s => s.Section)
             .WithMany(st => st.SubjectSections)
@@ -133,18 +117,10 @@ public partial class MptcContext : IdentityDbContext<Member>
             .HasOne(s => s.Student)
             .WithMany(st => st.StudentLevels)
             .HasForeignKey(t => t.StudentId);
-        modelBuilder.Entity<TempResult>()
-            .HasOne(s => s.Student)
-            .WithMany(st => st.TempResults)
-            .HasForeignKey(t => t.StudentId);
         modelBuilder.Entity<ResultNoteSection>()
             .HasOne(s => s.SubjectSection)
             .WithMany(st => st.ResultNoteSections)
             .HasForeignKey(t => t.SubjectSectionId);
-        modelBuilder.Entity<ResultNote>()
-            .HasOne(s => s.Staff)
-            .WithMany(st => st.ResultNotes)
-            .HasForeignKey(t => t.StaffId);
         modelBuilder.Entity<ResultNote>()
             .HasOne(s => s.Student)
             .WithMany(st => st.ResultNotes)
@@ -157,6 +133,26 @@ public partial class MptcContext : IdentityDbContext<Member>
             .HasOne(s => s.Nationality)
             .WithMany(st => st.Staffs)
             .HasForeignKey(t => t.NationalityId);
+        modelBuilder.Entity<ProfLevel>()
+            .HasOne(s => s.Period)
+            .WithMany(st => st.ProfLevels)
+            .HasForeignKey(t => t.PeriodId);
+        modelBuilder.Entity<StudentLevel>()
+            .HasOne(s => s.Period)
+            .WithMany(st => st.StudentLevels)
+            .HasForeignKey(t => t.PeriodId);
+        modelBuilder.Entity<Exam>()
+            .HasOne(s => s.Period)
+            .WithMany(st => st.Exams)
+            .HasForeignKey(t => t.PeriodId);
+        modelBuilder.Entity<Exam>()
+            .HasOne(s => s.ProfSubject)
+            .WithMany(st => st.Exams)
+            .HasForeignKey(t => t.ProfSubjectId);
+        modelBuilder.Entity<ResultNote>()
+            .HasOne(s => s.ProfSubject)
+            .WithMany(st => st.ResultNotes)
+            .HasForeignKey(t => t.ProfSubjectId);
 
     }
 
@@ -217,8 +213,6 @@ public partial class MptcContext : IdentityDbContext<Member>
     public virtual DbSet<ResourceType> ResourceTypes { get; set; }
     public virtual DbSet<Category> Categorys { get; set; }
     public virtual DbSet<SubjectSection> SubjectSections { get; set; }
-    public virtual DbSet<TempResultSection> TempResultSections { get; set; }
-    public virtual DbSet<TempResult> TempResults { get; set; }
     public virtual DbSet<Section> Sections { get; set; }
     public virtual DbSet<Level> Levels { get; set; }
     public virtual DbSet<StudentLevel> StudentLevels { get; set; }
@@ -226,4 +220,6 @@ public partial class MptcContext : IdentityDbContext<Member>
     public virtual DbSet<ResultNoteSection> ResultNoteSections { get; set; }
     public virtual DbSet<ResultNote> ResultNotes { get; set; }
     public virtual DbSet<Nationality> Nationalitys { get; set; }
+    public virtual DbSet<ProfLevel> ProfLevels { get; set; }
+    public virtual DbSet<Period> Periods { get; set; }
 }
