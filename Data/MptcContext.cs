@@ -21,7 +21,7 @@ public partial class MptcContext : IdentityDbContext<Member>
 
      protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-                optionsBuilder.UseNpgsql("Host=192.168.0.182;Database=mptc_db;Username=postgres;Password=root;");
+                optionsBuilder.UseNpgsql("Host=localhost;Database=mptc_db;Username=postgres;Password=root;");
                 optionsBuilder.UseLazyLoadingProxies();
     }
 
