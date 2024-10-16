@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Net.WebSockets;
 using System.Text;
@@ -24,7 +25,7 @@ namespace MPTC_API.Services
 
         private static readonly Dictionary<string, float[]> _knownFaceEmbeddings = new Dictionary<string, float[]>();
         private Dictionary<DlibDotNet.Rectangle, string> _recognizedNames = new Dictionary<DlibDotNet.Rectangle, string>();
-
+        RTSPStreamer rtspStreamer = new RTSPStreamer();
         private double scale = 0.0;
 
 
@@ -78,10 +79,13 @@ namespace MPTC_API.Services
             }
         }
 
+        
+
         public async Task ProcessFrames(VideoCapture capture, CancellationToken token, bool isIn)
         {
             var outFrame = new Image<Bgr, byte>(640, 480);
             var faceDetector = Dlib.GetFrontalFaceDetector();
+            rtspStreamer.StartStreaming();
 
             while (!token.IsCancellationRequested)
             {
@@ -103,6 +107,7 @@ namespace MPTC_API.Services
 
                                 }
                                 else{
+                                    rtspStreamer.StreamFrameAsync(outFrame.Mat);
                                     if (GlobalService.wsOut == null || GlobalService.wsOut.State != WebSocketState.Open)
                                     {
                                         Console.WriteLine("Waiting for websocket Out connection");
@@ -132,24 +137,23 @@ namespace MPTC_API.Services
                                         //CvInvoke.Imshow("Real-Time Face Detection", frame);
 
                                         using var ms = new MemoryStream();
-                                        outFrame.ToBitmap().Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                                        string base64Image = Convert.ToBase64String(ms.ToArray());
+                                        var compressedFrame = CompressFrame(outFrame.ToBitmap());
 
-                                        var message = new { type = "frame", data = base64Image };
-                                        var jsonMessage = System.Text.Json.JsonSerializer.Serialize(message);
 
                                         //Console.WriteLine($"Output frame size is {outFrame.Size} ");
                                         switch (isIn)
                                         {
                                             case true:
+                                                // await rtspStreamer.StreamFrameAsync(outFrame.Mat);
+                                                
                                                 if (GlobalService.wsIn.State == WebSocketState.Open)
                                                 {
                                                     await GlobalService.wsIn.SendAsync(
-                                                        new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonMessage)), 
-                                                        WebSocketMessageType.Text, 
-                                                        true, 
-                                                        CancellationToken.None
-                                                    );
+                                                    new ArraySegment<byte>(compressedFrame),  // Send the binary data here
+                                                    WebSocketMessageType.Binary,             // Use Binary message type
+                                                    true,                                    // End the message (this will send a complete message)
+                                                    CancellationToken.None                  // No cancellation token here
+                                                );
                                                     Console.WriteLine("Sent frame In to client");
                                                 }
                                                 else
@@ -162,11 +166,11 @@ namespace MPTC_API.Services
 
                                             if (GlobalService.wsOut.State == WebSocketState.Open)
                                                 {
-                                                    await GlobalService.wsOut.SendAsync(
-                                                        new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonMessage)), 
-                                                        WebSocketMessageType.Text, 
-                                                        true, 
-                                                        CancellationToken.None
+                                                     await GlobalService.wsOut.SendAsync(
+                                                        new ArraySegment<byte>(compressedFrame),  // Send the binary data here
+                                                        WebSocketMessageType.Binary,             // Use Binary message type
+                                                        true,                                    // End the message (this will send a complete message)
+                                                        CancellationToken.None                  // No cancellation token here
                                                     );
                                                     Console.WriteLine("Sent frame Out to client");
                                                 }
@@ -189,6 +193,8 @@ namespace MPTC_API.Services
                                     await Task.Delay(1000);
                                     break;
                                 }
+
+                                Task.Delay(33);
                             }
                         }
 
@@ -526,6 +532,17 @@ namespace MPTC_API.Services
             int bottom = y + height;
 
             return new DlibDotNet.Rectangle(left, top, right, bottom);
+        }
+
+
+        private byte[] CompressFrame(Bitmap frame)
+        {
+            // Use FFmpeg or .NET native compression here (JPEG encoding for example)
+            using (var ms = new MemoryStream())
+            {
+                frame.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg); // Compress the frame
+                return ms.ToArray();
+            }
         }
 
         public async Task InsertEmployeeImages(List<EmployeeImage> employeeImage)
