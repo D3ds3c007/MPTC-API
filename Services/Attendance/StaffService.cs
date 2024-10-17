@@ -125,7 +125,8 @@ namespace MPTC_API.Services.Attendance
             // Define character sets
             string uppercaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             string nonAlphanumericChars = "!@#$%^&*()_+=-{}[]:;'<>,.?/";
-            string alphanumericChars = "abcdefghijklmnopqrstuvwxyz0123456789";
+            string alphaChars = "abcdefghijklmnopqrstuvwxyz";
+            string numericChars = "0123456789";
 
             var password = new StringBuilder();
             
@@ -138,7 +139,7 @@ namespace MPTC_API.Services.Attendance
             // Fill remaining with random alphanumeric characters
             for (int i = 2; i < length; i++)
             {
-                string allCharacters = uppercaseLetters + alphanumericChars + nonAlphanumericChars;
+                string allCharacters = uppercaseLetters + alphaChars + nonAlphanumericChars + numericChars;
                 password.Append(allCharacters[random.Next(allCharacters.Length)]);
             }
 

@@ -10,6 +10,7 @@ using MPTC_API.Services.Attendance;
 using MPTC_API.Services;
 using static System.Text.Json.JsonElement;
 using MPTC_API.Models.Attendance.StaffDTO;
+using MongoDB.Bson;
 
 
 
@@ -82,7 +83,10 @@ namespace MPTC_API.Controllers.Attendance
                 foreach (Dictionary<string, object> descriptor in descriptors)
                 {
                     employeeImages.Add(new EmployeeImage{
+                        //generate a objectId for id property
+                        Id = ObjectId.GenerateNewId(),
                         IdStaff = staff.IdStaff,
+                        StaffName = staff.StaffName + " " + staff.FirstName,
                         Base64Image = (string) descriptor["picture"],
                         Descriptor = descriptor["descriptor"] as float[]
                     });

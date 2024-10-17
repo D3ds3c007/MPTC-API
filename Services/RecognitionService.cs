@@ -49,34 +49,42 @@ namespace MPTC_API.Services
 
         private void LoadKnownFaces()
         {
-            var directory = Path.Combine(Directory.GetCurrentDirectory(), "Data", "KnownFaces");
-            string[] knownNames = { "Joe", "Kamala", "Obama1", "Obama2", "Donald Trump" };
-            string[] knownImagePaths = Directory.GetFiles(directory, "*.jpg");
+            List<EmployeeImage> employeeImages = _employeeImages.Find(image => true).ToList();
 
-            for (int i = 0; i < knownImagePaths.Length; i++)
+            //loop employeeImages then display the employee id
+            foreach (var employeeImage in employeeImages)
             {
-                // Convert known image to Dlib image
-                using (var image = Dlib.LoadImage<RgbPixel>(knownImagePaths[i]))
-                {
-                    var faceDetections = Dlib.GetFrontalFaceDetector().Operator(image);
-                    if (faceDetections.Length > 0)
-                    {
-                        //Detect facial landmarks
-                        var shape = _shapePredictor.Detect(image, faceDetections[0]);
-                        var result = image.ToBitmap();
-
-                        var faceChipDetails = Dlib.GetFaceChipDetails(shape, 150);
-                        var faceChip = Dlib.ExtractImageChip<RgbPixel>(image, faceChipDetails);
-                        result = faceChip.ToBitmap();
-
-
-                        DlibDotNet.Matrix<RgbPixel> matrix = result.ToMatrix<RgbPixel>();
-                        var faceDescriptor = _net.Operator(matrix);
-                        _knownFaceEmbeddings.Add(knownNames[i], faceDescriptor.ToArray().SelectMany(x => x.ToArray()).ToArray());
-
-                    }
-                }
+                Console.WriteLine($"Employee ID: {employeeImage.IdStaff} and Staff Name : {employeeImage.StaffName}");
+                _knownFaceEmbeddings.Add(employeeImage.StaffName, employeeImage.Descriptor);
             }
+            // var directory = Path.Combine(Directory.GetCurrentDirectory(), "Data", "KnownFaces");
+            // string[] knownNames = { "Joe", "Kamala", "Nantenaina", "Obama1", "Obama2", "Princy Robinson", "Donald Trump" };
+            // string[] knownImagePaths = Directory.GetFiles(directory, "*.jpg");
+
+            // for (int i = 0; i < knownImagePaths.Length; i++)
+            // {
+            //     // Convert known image to Dlib image
+            //     using (var image = Dlib.LoadImage<RgbPixel>(knownImagePaths[i]))
+            //     {
+            //         var faceDetections = Dlib.GetFrontalFaceDetector().Operator(image);
+            //         if (faceDetections.Length > 0)
+            //         {
+            //             //Detect facial landmarks
+            //             var shape = _shapePredictor.Detect(image, faceDetections[0]);
+            //             var result = image.ToBitmap();
+
+            //             var faceChipDetails = Dlib.GetFaceChipDetails(shape, 150);
+            //             var faceChip = Dlib.ExtractImageChip<RgbPixel>(image, faceChipDetails);
+            //             result = faceChip.ToBitmap();
+
+
+            //             DlibDotNet.Matrix<RgbPixel> matrix = result.ToMatrix<RgbPixel>();
+            //             var faceDescriptor = _net.Operator(matrix);
+            //             _knownFaceEmbeddings.Add(knownNames[i], faceDescriptor.ToArray().SelectMany(x => x.ToArray()).ToArray());
+
+            //         }
+            //     }
+            // }
         }
 
         
@@ -100,7 +108,7 @@ namespace MPTC_API.Services
                                 {
                                     if (GlobalService.wsIn == null || GlobalService.wsIn.State != WebSocketState.Open)
                                     {
-                                        Console.WriteLine("Waiting for websocket In connection");
+                                        // Console.WriteLine("Waiting for websocket In connection");
                                         await Task.Delay(1000);
                                         continue;
                                     }
@@ -110,7 +118,7 @@ namespace MPTC_API.Services
                                     rtspStreamer.StreamFrameAsync(outFrame.Mat);
                                     if (GlobalService.wsOut == null || GlobalService.wsOut.State != WebSocketState.Open)
                                     {
-                                        Console.WriteLine("Waiting for websocket Out connection");
+                                        // Console.WriteLine("Waiting for websocket Out connection");
                                         await Task.Delay(1000);
                                         continue;
                                     }
@@ -138,7 +146,6 @@ namespace MPTC_API.Services
 
                                         using var ms = new MemoryStream();
                                         var compressedFrame = CompressFrame(outFrame.ToBitmap());
-
 
                                         //Console.WriteLine($"Output frame size is {outFrame.Size} ");
                                         switch (isIn)
@@ -180,10 +187,6 @@ namespace MPTC_API.Services
                                                 }
                                                 break;  // Terminate the case after execution
                                         }
-
-
-                                        
-
 
                                     }
                                 }
@@ -547,6 +550,7 @@ namespace MPTC_API.Services
 
         public async Task InsertEmployeeImages(List<EmployeeImage> employeeImage)
         {
+            Console.WriteLine("Insert Image");
             await _employeeImages.InsertManyAsync(employeeImage);
 
         }

@@ -112,9 +112,7 @@ public class CameraStreamingService : BackgroundService
     {
         // Automatically start streaming when the service starts
         Task.Run( () => _clockInController.Index());
-
         Task.Run( () => _clockOutController.Index());
-
     }
 }
 

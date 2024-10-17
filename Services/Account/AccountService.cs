@@ -32,7 +32,7 @@ namespace MPTC_API.Services.Authentication
             //display the result
 
             result.Errors.ToList().ForEach(error => {
-                Console.WriteLine(error.Description);
+                throw new Exception(error.Description);
             });
 
             return result;
