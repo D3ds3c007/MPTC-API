@@ -91,6 +91,7 @@ namespace MPTC_API.Services
 
         public async Task ProcessFrames(VideoCapture capture, CancellationToken token, bool isIn)
         {
+            Console.WriteLine("Process started  " + isIn);
             var outFrame = new Image<Bgr, byte>(640, 480);
             var faceDetector = Dlib.GetFrontalFaceDetector();
             rtspStreamer.StartStreaming();
@@ -104,25 +105,26 @@ namespace MPTC_API.Services
                             while (true)
                             {
                                 //wait for new weebsocket connection
-                                if(isIn)
-                                {
-                                    if (GlobalService.wsIn == null || GlobalService.wsIn.State != WebSocketState.Open)
-                                    {
-                                        // Console.WriteLine("Waiting for websocket In connection");
-                                        await Task.Delay(1000);
-                                        continue;
-                                    }
+                                // if(isIn)
+                                // {
+                                //     if (GlobalService.wsIn == null || GlobalService.wsIn.State != WebSocketState.Open)
+                                //     {
+                                //         // Console.WriteLine("Waiting for websocket In connection");
+                                //         // await Task.Delay(1000);
+                                //         continue;
+                                //     }
 
-                                }
-                                else{
-                                    rtspStreamer.StreamFrameAsync(outFrame.Mat);
-                                    if (GlobalService.wsOut == null || GlobalService.wsOut.State != WebSocketState.Open)
-                                    {
-                                        // Console.WriteLine("Waiting for websocket Out connection");
-                                        await Task.Delay(1000);
-                                        continue;
-                                    }
-                                }
+                                // }
+                                // else{
+                                //     // rtspStreamer.StreamFrameAsync(outFrame.Mat);
+                                //     if (GlobalService.wsOut == null || GlobalService.wsOut.State != WebSocketState.Open)
+                                //     {
+                                //         // Console.WriteLine("Waiting for websocket Out connection");
+                                //         // await Task.Delay(1000);
+                                //         continue;
+                                //     }
+                                // }
+                                Console.WriteLine("Entering loop");
 
                                 try
                                 {
@@ -140,7 +142,7 @@ namespace MPTC_API.Services
                                         scale = Math.Min(scaleX, scaleY);
 
                                         await Task.Run(() => ProcessFrame(frame, out outFrame, faceDetector, predictor, predictorFace));
-
+                                        Console.WriteLine("Frame processed");
                                         // Display the result
                                         //CvInvoke.Imshow("Real-Time Face Detection", frame);
 

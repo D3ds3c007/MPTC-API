@@ -40,7 +40,7 @@ namespace MPTC_API.Controllers.Attendance
             if (!capture.IsOpened)
             {
                 Console.WriteLine("Failed to open camera.");
-                return BadRequest("Camera not available");
+                // return BadRequest("Camera not available");
             }
             capture.Set(CapProp.Fps, 60);
             capture.Set(CapProp.Buffersize, 3);

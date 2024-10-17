@@ -32,7 +32,9 @@ namespace MPTC_API.Controllers.Attendance
             if (!capture.IsOpened)
             {
                 Console.WriteLine("Failed to open camera.");
-                return BadRequest("Camera not available");
+                // return BadRequest("Camera not available");
+            }else{
+                Console.WriteLine("Camera 1 opened");
             }
             capture.Set(CapProp.Fps, 60);
             capture.Set(CapProp.Buffersize, 3);
@@ -41,7 +43,17 @@ namespace MPTC_API.Controllers.Attendance
             var cancellationTokenSource = new CancellationTokenSource();
             var token = cancellationTokenSource.Token;
 
-            await Task.Run(() => _recognitionService.ProcessFrames(capture, token, true), token);
+            try{
+                Console.WriteLine("Before process");
+                await Task.Run(() => _recognitionService.ProcessFrames(capture, token, true), token);
+                Console.WriteLine("After  process");
+            }catch(Exception e){
+                Console.WriteLine(e.Message);
+            }
+            // Console.WriteLine("Before process");
+            // await Task.Run(() => _recognitionService.ProcessFrames(capture, token, true), token);
+            // Console.WriteLine("After  process");
+
 
             
             return Ok("Welcome to ClockIn Controller");
