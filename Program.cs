@@ -4,8 +4,10 @@ using MongoDB.Driver;
 using MPTC_API.Controllers.Attendance;
 
 using MPTC_API.Data;
+using MPTC_API.Hub;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Services;
+using MPTC_API.Services.Attendance;
 using MPTC_API.Services.Authentication;
 
 var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -40,13 +42,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy  =>
-                      {
-                          policy.WithOrigins("http://localhost:3000")
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                      });
+    options.AddPolicy("AllowLocalhost",
+        builder => builder
+            .WithOrigins("http://localhost:3000") // Allow frontend origin
+            .AllowCredentials() // Allow credentials
+            .AllowAnyHeader()
+            .AllowAnyMethod());
 });
 
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -63,6 +64,9 @@ builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
     return new MongoClient(connectionString);
 });
 builder.Services.AddHostedService<CameraStreamingService>(); // Register the background service
+builder.Services.AddScoped<AttendanceService>();
+
+builder.Services.AddSignalR(); // Add SignalR service
 
 
 
@@ -70,6 +74,9 @@ builder.Services.AddHostedService<CameraStreamingService>(); // Register the bac
 
 
 var app = builder.Build();
+
+app.UseCors("AllowLocalhost"); // Enable the CORS policy
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -91,6 +98,14 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseRouting(); 
+app.UseEndpoints(endpoints =>
+{
+    // Map the SignalR hub to an endpoint
+    endpoints.MapHub<AttendanceHub>("/attendanceHub");
+
+    // Other endpoints...
+});
 
 app.Run();
 

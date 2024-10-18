@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using MPTC_API.Models.Attendance;
 
 namespace MPTC_API.Models.Education
@@ -29,6 +30,7 @@ namespace MPTC_API.Models.Education
         //navigation property
         public virtual Student Student { get; set; }
         public virtual Exam Exam { get; set; }
+        [JsonIgnore]
         public virtual Staff Staff { get; set; }
         public virtual ICollection<ResultNoteSection> ResultNoteSections { get; set; }
 

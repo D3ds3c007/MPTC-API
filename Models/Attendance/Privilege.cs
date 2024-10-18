@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MPTC_API.Models.Attendance
 {
@@ -11,6 +12,7 @@ namespace MPTC_API.Models.Attendance
         public String PrivilegeName { get; set; }
 
         //navigation property
+        [JsonIgnore]
         public virtual ICollection<Staff> Staffs { get; set; }
         public virtual ICollection<Policy> Policies { get; set; }
 

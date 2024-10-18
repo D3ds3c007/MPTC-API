@@ -23,7 +23,5 @@ namespace MPTC_API.Models.Attendance.StaffDTO
 
     }
 
-    public class EmployeeImageDTO
-    {
-    }
+    
 }

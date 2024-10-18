@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using MPTC_API.Models.Attendance;
 
 namespace MPTC_API.Models.Education
@@ -32,6 +33,7 @@ namespace MPTC_API.Models.Education
         //navigation property
         public virtual Subject Subject { get; set; }
         public virtual Level Level { get; set; }
+        [JsonIgnore]
         public virtual Staff Staff { get; set; }
 
     }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using MPTC_API.Models.BigData;
 using MPTC_API.Models.Education;
 

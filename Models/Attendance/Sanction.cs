@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MPTC_API.Models.Attendance
 {
@@ -17,6 +18,7 @@ namespace MPTC_API.Models.Attendance
         public int PolicyId { get; set; }
 
         //navigation property
+        [JsonIgnore]
         public virtual Staff Staff { get; set; }
         public virtual Policy Policy { get; set; }
     }

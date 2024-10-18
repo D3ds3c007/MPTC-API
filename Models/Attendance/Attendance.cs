@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Org.BouncyCastle.Asn1.Cms;
 
@@ -21,6 +22,7 @@ namespace MPTC_API.Models.Attendance
 
 
         //navigation property
+        [JsonIgnore]
         public virtual Staff Staff { get; set; }
     }
 

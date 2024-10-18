@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using MPTC_API.Models.Attendance;
 
 namespace MPTC_API.Models.BigData
@@ -41,6 +42,7 @@ namespace MPTC_API.Models.BigData
         //navigation property
         public virtual ResourceType ResourceType { get; set; }
         public virtual Category Category { get; set; }
+        [JsonIgnore]
         public virtual Staff Staff { get; set; }
         public virtual ICollection<ResourceInteraction> ResourceInteractions { get; set; }
     }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using MPTC_API.Models.Education;
 
 namespace MPTC_API.Models.Attendance
@@ -12,6 +13,7 @@ namespace MPTC_API.Models.Attendance
         public String VenueName { get; set; }
 
         //navigation property
+        [JsonIgnore]
         public virtual ICollection<Staff> Staffs { get; set; }
         public virtual ICollection<Student> Students { get; set; }
 

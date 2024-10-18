@@ -12,8 +12,10 @@ using EllipticCurve.Utils;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using Microsoft.AspNetCore.SignalR;
 using MongoDB.Driver;
 using MPTC_API.Data;
+using MPTC_API.Hub;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Services.Attendance;
 using static System.Text.Json.JsonElement;
@@ -29,14 +31,18 @@ namespace MPTC_API.Services
         private static readonly Dictionary<int, float[]> _knownFaceEmbeddings = new Dictionary<int, float[]>();
         private Dictionary<DlibDotNet.Rectangle, string> _recognizedNames = new Dictionary<DlibDotNet.Rectangle, string>();
         RTSPStreamer rtspStreamer = new RTSPStreamer();
+        private readonly IHubContext<AttendanceHub> _hubContext;
+
         private double scale = 0.0;
 
 
 
 
 
-        public RecognitionService(IMongoClient mongoClient )
+        public RecognitionService(IMongoClient mongoClient, IHubContext<AttendanceHub> hubContext)
         {
+            _hubContext = hubContext;
+
             var database = mongoClient.GetDatabase("admin"); // Replace with your database name
             Console.WriteLine(database);
             _employeeImages = database.GetCollection<EmployeeImage>("EmployeeImage");
@@ -368,8 +374,6 @@ namespace MPTC_API.Services
                     RecognizeFaceAsync(faceDescriptors, faces, isClockIn, _context);
                 });
 
-
-
             }
             catch (Exception e)
             {
@@ -379,8 +383,6 @@ namespace MPTC_API.Services
             {
                 dlibImage.Dispose();
             }
-
-
 
         }
 
@@ -424,7 +426,7 @@ namespace MPTC_API.Services
                 try{
 
                     await AttendanceService.UpdateAttendanceAsync(int.Parse(result) , isClockIn, _context);
-                    AttendanceService.LogAttendance(int.Parse(result), isClockIn, _context);
+                    Task.Run(() => AttendanceService.LogAttendance(int.Parse(result), isClockIn, _context, _hubContext)); 
 
                 }catch(Exception ex)
                 {

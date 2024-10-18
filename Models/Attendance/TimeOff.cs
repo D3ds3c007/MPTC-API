@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using MPTC_API.Models.Attendance;
 
 namespace MPTC_API.Models.Attendance
@@ -18,6 +19,7 @@ namespace MPTC_API.Models.Attendance
         public DateTime EndTimeOff { get; set; }
 
         //navigation property
+        [JsonIgnore]
         public virtual Staff Staff { get; set; }
 
     }
