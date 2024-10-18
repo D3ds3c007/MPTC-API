@@ -8,11 +8,14 @@ using Compunet.YoloV8;
 using DlibDotNet;
 using DlibDotNet.Dnn;
 using DlibDotNet.Extensions;
+using EllipticCurve.Utils;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using MongoDB.Driver;
+using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
+using MPTC_API.Services.Attendance;
 using static System.Text.Json.JsonElement;
 
 namespace MPTC_API.Services
@@ -23,7 +26,7 @@ namespace MPTC_API.Services
         private static ShapePredictor _shapePredictor;
         private static LossMetric _net;
 
-        private static readonly Dictionary<string, float[]> _knownFaceEmbeddings = new Dictionary<string, float[]>();
+        private static readonly Dictionary<int, float[]> _knownFaceEmbeddings = new Dictionary<int, float[]>();
         private Dictionary<DlibDotNet.Rectangle, string> _recognizedNames = new Dictionary<DlibDotNet.Rectangle, string>();
         RTSPStreamer rtspStreamer = new RTSPStreamer();
         private double scale = 0.0;
@@ -55,7 +58,7 @@ namespace MPTC_API.Services
             foreach (var employeeImage in employeeImages)
             {
                 Console.WriteLine($"Employee ID: {employeeImage.IdStaff} and Staff Name : {employeeImage.StaffName}");
-                _knownFaceEmbeddings.Add(employeeImage.StaffName, employeeImage.Descriptor);
+                _knownFaceEmbeddings.Add(employeeImage.IdStaff, employeeImage.Descriptor);
             }
             // var directory = Path.Combine(Directory.GetCurrentDirectory(), "Data", "KnownFaces");
             // string[] knownNames = { "Joe", "Kamala", "Nantenaina", "Obama1", "Obama2", "Princy Robinson", "Donald Trump" };
@@ -87,9 +90,7 @@ namespace MPTC_API.Services
             // }
         }
 
-        
-
-        public async Task ProcessFrames(VideoCapture capture, CancellationToken token, bool isIn)
+        public async Task ProcessFrames(VideoCapture capture, CancellationToken token, bool isIn, MptcContext _context)
         {
             Console.WriteLine("Process started  " + isIn);
             var outFrame = new Image<Bgr, byte>(640, 480);
@@ -104,27 +105,7 @@ namespace MPTC_API.Services
                         {
                             while (true)
                             {
-                                //wait for new weebsocket connection
-                                // if(isIn)
-                                // {
-                                //     if (GlobalService.wsIn == null || GlobalService.wsIn.State != WebSocketState.Open)
-                                //     {
-                                //         // Console.WriteLine("Waiting for websocket In connection");
-                                //         // await Task.Delay(1000);
-                                //         continue;
-                                //     }
-
-                                // }
-                                // else{
-                                //     // rtspStreamer.StreamFrameAsync(outFrame.Mat);
-                                //     if (GlobalService.wsOut == null || GlobalService.wsOut.State != WebSocketState.Open)
-                                //     {
-                                //         // Console.WriteLine("Waiting for websocket Out connection");
-                                //         // await Task.Delay(1000);
-                                //         continue;
-                                //     }
-                                // }
-                                Console.WriteLine("Entering loop");
+                            
 
                                 try
                                 {
@@ -141,15 +122,11 @@ namespace MPTC_API.Services
                                         double scaleY = 480.0 / frame.Height;
                                         scale = Math.Min(scaleX, scaleY);
 
-                                        await Task.Run(() => ProcessFrame(frame, out outFrame, faceDetector, predictor, predictorFace));
-                                        Console.WriteLine("Frame processed");
-                                        // Display the result
-                                        //CvInvoke.Imshow("Real-Time Face Detection", frame);
+                                        await Task.Run(() => ProcessFrame(frame, out outFrame, faceDetector, predictor, predictorFace, isIn, _context));
 
                                         using var ms = new MemoryStream();
                                         var compressedFrame = CompressFrame(outFrame.ToBitmap());
 
-                                        //Console.WriteLine($"Output frame size is {outFrame.Size} ");
                                         switch (isIn)
                                         {
                                             case true:
@@ -181,7 +158,7 @@ namespace MPTC_API.Services
                                                         true,                                    // End the message (this will send a complete message)
                                                         CancellationToken.None                  // No cancellation token here
                                                     );
-                                                    Console.WriteLine("Sent frame Out to client");
+                                                    // Console.WriteLine("Sent frame Out to client");
                                                 }
                                                 else
                                                 {
@@ -199,7 +176,6 @@ namespace MPTC_API.Services
                                     break;
                                 }
 
-                                Task.Delay(33);
                             }
                         }
 
@@ -207,7 +183,7 @@ namespace MPTC_API.Services
             }
         }
 
-        private void ProcessFrame(Image<Bgr, Byte> frame, out Image<Bgr, Byte> OutputFrame, FrontalFaceDetector faceDetector, YoloV8Predictor predictor, YoloV8Predictor predictorFace)
+        private void ProcessFrame(Image<Bgr, Byte> frame, out Image<Bgr, Byte> OutputFrame, FrontalFaceDetector faceDetector, YoloV8Predictor predictor, YoloV8Predictor predictorFace, bool isClockIn = true, MptcContext _context=null)
         {
             //remove duplicate names
             _recognizedNames.Clear();
@@ -260,7 +236,7 @@ namespace MPTC_API.Services
                     {
                         Task.Run(() =>
                         {
-                            RecognizeAndDisplay(faces.Boxes, dlibImage.Clone());
+                            RecognizeAndDisplay(faces.Boxes, dlibImage.Clone(), isClockIn, _context);
                         });
 
 
@@ -362,7 +338,7 @@ namespace MPTC_API.Services
 
         }
 
-        private void RecognizeAndDisplay(Compunet.YoloV8.Data.BoundingBox[] faces, DlibDotNet.Matrix<RgbPixel> dlibImage)
+        private void RecognizeAndDisplay(Compunet.YoloV8.Data.BoundingBox[] faces, DlibDotNet.Matrix<RgbPixel> dlibImage, bool isClockIn, MptcContext _context)
         {
 
 
@@ -389,7 +365,7 @@ namespace MPTC_API.Services
                 }
                 Task.Run(() =>
                 {
-                    RecognizeFace(faceDescriptors, faces);
+                    RecognizeFaceAsync(faceDescriptors, faces, isClockIn, _context);
                 });
 
 
@@ -408,7 +384,7 @@ namespace MPTC_API.Services
 
         }
 
-        private void RecognizeFace(List<float[]> faceDescriptors, Compunet.YoloV8.Data.BoundingBox[] faces)
+        private async Task RecognizeFaceAsync(List<float[]> faceDescriptors, Compunet.YoloV8.Data.BoundingBox[] faces, bool isClockIn, MptcContext _context)
         {
             double threshold = 0.5;
             double distance = double.MaxValue;
@@ -421,7 +397,7 @@ namespace MPTC_API.Services
                 // Compare the face descriptor with known embeddings
                 foreach (var kvp in _knownFaceEmbeddings)
                 {
-                    var name = kvp.Key;
+                    int name = kvp.Key;
                     var knownEmbedding = kvp.Value;
 
                     // Compute the distance (e.g., Euclidean distance) between the embeddings
@@ -432,7 +408,7 @@ namespace MPTC_API.Services
                     {
                         //Beep each time a face is recognized
                         distance = distCalculated;
-                        result = name;
+                        result = name.ToString();
                     }
 
                 }
@@ -445,7 +421,20 @@ namespace MPTC_API.Services
             {
                 Console.Beep();
                 Console.WriteLine($"Recognized: {result} ({distance})");
+                try{
 
+                    await AttendanceService.UpdateAttendanceAsync(int.Parse(result) , isClockIn, _context);
+                    AttendanceService.LogAttendance(int.Parse(result), isClockIn, _context);
+
+                }catch(Exception ex)
+                {
+                    Console.WriteLine("Logging error : " + ex.StackTrace);
+                        Console.WriteLine("Inner Exception: " + ex.InnerException?.Message);
+
+                }
+
+              
+                
             }
         }
 

@@ -10,11 +10,11 @@ namespace MPTC_API.Models.Attendance
         [Required(ErrorMessage = "StaffId is required and cannot be empty")]
         public int StaffId { get; set; }
 
-        [Required(ErrorMessage = "DateTime is required and cannot be empty")]
-        public DateTime DateTime { get; set; }
+        [Required(ErrorMessage = "EventType is required and cannot be empty")]
+        public string EventType { get; set; }
 
-        [Required(ErrorMessage = "IsDateTimeIn is required and cannot be empty")]
-        public DateTime IsDateTimeIn { get; set; }
+        [Required(ErrorMessage = "EventTime is required and cannot be empty")]
+        public DateTime EventTime { get; set; }
 
         //navigation property
         public virtual Staff Staff { get; set; }

@@ -45,7 +45,7 @@ namespace MPTC_API.Controllers.Attendance
 
             try{
                 Console.WriteLine("Before process");
-                await Task.Run(() => _recognitionService.ProcessFrames(capture, token, true), token);
+                await Task.Run(() => _recognitionService.ProcessFrames(capture, token, true, _context), token);
                 Console.WriteLine("After  process");
             }catch(Exception e){
                 Console.WriteLine(e.Message);

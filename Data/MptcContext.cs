@@ -57,6 +57,10 @@ public partial class MptcContext : IdentityDbContext<Member>
             .HasOne(s => s.Policy)
             .WithMany(st => st.Sanctions)
             .HasForeignKey(t => t.PolicyId);
+        modelBuilder.Entity<Attendance>()
+            .HasOne(s => s.Staff)
+            .WithMany(st => st.Attendances)
+            .HasForeignKey(t => t.StaffId);
         modelBuilder.Entity<Log>()
             .HasOne(s => s.Staff)
             .WithMany(st => st.Logs)
@@ -207,6 +211,7 @@ public partial class MptcContext : IdentityDbContext<Member>
     public virtual DbSet<TimeOff> TimeOffs { get; set; }
     public virtual DbSet<Sanction> Sanctions { get; set; }
     public virtual DbSet<Policy> Policys { get; set; }
+    public virtual DbSet<Attendance> Attendances { get; set; }
     public virtual DbSet<Log> Logss { get; set; }
     public virtual DbSet<Schedule> Schedules { get; set; }
     public virtual DbSet<ProfSubject> ProfSubjects { get; set; }

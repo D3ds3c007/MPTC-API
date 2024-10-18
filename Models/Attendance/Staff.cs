@@ -54,6 +54,7 @@ namespace MPTC_API.Models.Attendance
         public virtual Member Member { get; set; }
         public virtual ICollection<Sanction> Sanctions { get; set; }
         public virtual ICollection<Log> Logs { get; set; }
+        public virtual ICollection<Attendance> Attendances { get; set; }
         public virtual ICollection<Schedule> Schedules { get; set; }
         public virtual ICollection<TimeOff> TimeOffs { get; set; }
         public virtual ICollection<Exam> Exams { get; set; }

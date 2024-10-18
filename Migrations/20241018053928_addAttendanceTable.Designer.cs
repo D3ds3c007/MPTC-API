@@ -3,6 +3,7 @@ using System;
 using MPTC_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MPTC_API.Migrations
 {
     [DbContext(typeof(MptcContext))]
-    partial class MptcContextModelSnapshot : ModelSnapshot
+    [Migration("20241018053928_addAttendanceTable")]
+    partial class addAttendanceTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,10 +39,10 @@ namespace MPTC_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdAttendance"));
 
-                    b.Property<TimeSpan?>("ClockInTime")
+                    b.Property<TimeSpan>("ClockInTime")
                         .HasColumnType("interval");
 
-                    b.Property<TimeSpan?>("ClockOutTime")
+                    b.Property<TimeSpan>("ClockOutTime")
                         .HasColumnType("interval");
 
                     b.Property<DateTime>("Date")

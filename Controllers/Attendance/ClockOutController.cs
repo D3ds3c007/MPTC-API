@@ -49,7 +49,7 @@ namespace MPTC_API.Controllers.Attendance
             var cancellationTokenSource = new CancellationTokenSource();
             var token = cancellationTokenSource.Token;
 
-            await Task.Run(() => _recognitionService.ProcessFrames(capture, token, false), token);
+            await Task.Run(() => _recognitionService.ProcessFrames(capture, token, false, _context), token);
 
             
             return Ok("Welcome to ClockOut Controller");
