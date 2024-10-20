@@ -101,7 +101,7 @@ namespace MPTC_API.Services
             Console.WriteLine("Process started  " + isIn);
             var outFrame = new Image<Bgr, byte>(640, 480);
             var faceDetector = Dlib.GetFrontalFaceDetector();
-            rtspStreamer.StartStreaming();
+            // rtspStreamer.StartStreaming();
 
             while (!token.IsCancellationRequested)
             {
@@ -178,7 +178,6 @@ namespace MPTC_API.Services
                                 catch (Exception e)
                                 {
                                     Console.WriteLine($"Error processing frame: {e.Message}");
-                                    await Task.Delay(1000);
                                     break;
                                 }
 
@@ -434,9 +433,6 @@ namespace MPTC_API.Services
                         Console.WriteLine("Inner Exception: " + ex.InnerException?.Message);
 
                 }
-
-              
-                
             }
         }
 

@@ -28,7 +28,7 @@ namespace MPTC_API.Controllers.Attendance
         {
             Console.WriteLine("Start clock in");
 
-            var capture = new VideoCapture(1);
+            var capture = new VideoCapture(0);
             if (!capture.IsOpened)
             {
                 Console.WriteLine("Failed to open camera.");

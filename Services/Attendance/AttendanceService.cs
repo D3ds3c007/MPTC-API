@@ -80,7 +80,7 @@ namespace MPTC_API.Services.Attendance
                     LastDetectedTime = DateTime.UtcNow
                 };
                 context.Attendances.Add(attendance);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
             else
             {
@@ -94,7 +94,7 @@ namespace MPTC_API.Services.Attendance
                     attendance.ClockOutTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 }
                 attendance.LastDetectedTime = DateTime.UtcNow;
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             } 
         }   
        
