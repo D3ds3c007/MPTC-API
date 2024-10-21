@@ -34,42 +34,48 @@ ORDER BY latenesscount DESC;  -- Order by staff ID
 
 -- Count absences per employee for a specific month
 
-WITH all_days AS (
-    -- Generate all days in the specified month
-    SELECT 
-        generate_series(
-            date_trunc('month', DATE '2024-01-01'),  -- Change this to the desired month
-            date_trunc('month', DATE '2024-01-01') + interval '1 month' - interval '1 day',
-            '1 day'
-        ) AS day
-)
+-- Step 4: Count absences and presences
 SELECT 
-    st."IdStaff" AS "StaffId",
-    st."StaffName",
-    COUNT(CASE 
-            WHEN a."ClockInTime" IS NULL  -- No attendance record
-                 AND NOT EXISTS (  -- Exclude if the day is covered by time off
-                     SELECT 1 
-                     FROM public."TimeOffs" t
-                     WHERE t."StaffId" = st."IdStaff"
-                       AND d.day BETWEEN t."BeginTimeOff" AND t."EndTimeOff"
-                 ) THEN 1  -- Count as absence if no time off and no attendance
-            ELSE NULL 
-          END) AS AbsenceCount  -- Count of absences
-FROM 
-    public."Staffs" st
-CROSS JOIN all_days d  -- Join with all days in the month
-LEFT JOIN public."Schedules" s ON st."IdStaff" = s."StaffId"
-    AND EXTRACT(DOW FROM d.day) = s."DayOfWeek"  -- Match the day of the week
-LEFT JOIN public."Attendances" a ON st."IdStaff" = a."StaffId"
-    AND a."Date" = d.day  -- Match attendance date with the generated day
-WHERE 
-    s."StaffId" IS NOT NULL  -- Only count employees with a schedule
-    AND EXTRACT(MONTH FROM d.day) = 1  -- Ensure it's the correct month (January)
-    AND EXTRACT(YEAR FROM d.day) = 2024  -- Ensure it's the correct year
-GROUP BY 
-    st."IdStaff", st."StaffName"
-ORDER BY 
-    st."IdStaff";
+    ap."IdStaff",
+    ap."StaffName",
+    COUNT(CASE WHEN ap.status = 'absent' THEN 1 END) AS AbsenceCount,  -- Count absences
+    COUNT(CASE WHEN ap.status = 'present' THEN 1 END) AS PresenceCount  -- Count presences
+FROM (
+    SELECT 
+        wd."IdStaff", 
+        wd."StaffName", 
+        wd.day,
+        CASE 
+            WHEN a."ClockInTime" IS NOT NULL THEN 'present'
+            WHEN t."IdTimeOff" IS NOT NULL THEN 'timeoff'
+            ELSE 'absent'
+        END AS status
+    FROM (
+        SELECT 
+            st."IdStaff", 
+            st."StaffName",
+            d.day
+        FROM public."Staffs" st
+        CROSS JOIN (
+            SELECT generate_series(
+                date_trunc('month', DATE '2024-10-01'), 
+                date_trunc('month', DATE '2024-10-01') + interval '1 month' - interval '1 day',
+                '1 day'
+            ) AS day
+        ) d
+        JOIN public."Schedules" s 
+            ON st."IdStaff" = s."StaffId" 
+            AND EXTRACT(DOW FROM d.day) = s."DayOfWeek"
+    ) wd
+    LEFT JOIN public."Attendances" a 
+        ON wd."IdStaff" = a."StaffId" 
+        AND wd.day = DATE(a."Date")
+    LEFT JOIN public."TimeOffs" t 
+        ON wd."IdStaff" = t."StaffId" 
+        AND wd.day BETWEEN t."BeginTimeOff" AND t."EndTimeOff"
+) ap
+GROUP BY ap."IdStaff", ap."StaffName"
+ORDER BY ap."IdStaff";
+
 
 
