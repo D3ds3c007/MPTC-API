@@ -67,7 +67,7 @@ namespace MPTC_API.Services.Attendance
 
             DateTime currentTime = DateTime.UtcNow;
 
-            if(lastDetectedTime == null || ((currentTime-lastDetectedTime.Value).TotalMinutes >= 10 && lastDetectedTime.Value.Date != currentTime.Date))
+            if(lastDetectedTime == null || ((currentTime-lastDetectedTime.Value).TotalMinutes >= 1440 && lastDetectedTime.Value.Date != currentTime.Date))
             {
                 Console.WriteLine($"lastedetecteTime : {lastDetectedTime}");
                 Console.WriteLine("Tafiditra attendance");
