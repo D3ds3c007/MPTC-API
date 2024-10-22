@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using MPTC_API.Data;
 using MPTC_API.Hub;
 using MPTC_API.Models.Attendance;
+using MPTC_API.Models.Attendance.MemberDTO;
 
 
 namespace MPTC_API.Services.Attendance
@@ -96,7 +97,42 @@ namespace MPTC_API.Services.Attendance
                 attendance.LastDetectedTime = DateTime.UtcNow;
                 await context.SaveChangesAsync();
             } 
-        }   
+        }
+
+        //static function to map list of attendance to list of attendanceDTO and check if the staff is late
+        public static List<AttendanceDTO> MapAttendanceToDTO(List<MPTC_API.Models.Attendance.Attendance> attendances)
+        {
+            List<AttendanceDTO> attendanceDTOs = new List<AttendanceDTO>();
+            foreach (var attendance in attendances)
+            {
+                
+                AttendanceDTO attendanceDTO = new AttendanceDTO
+                {
+                    AttendanceId = attendance.IdAttendance,
+                    Matricule = attendance.Staff.Matricule,
+                    StaffName = attendance.Staff.FirstName + " " + attendance.Staff.StaffName,
+                    recordDate = attendance.Date,
+                    timeIn = attendance.ClockInTime,
+                    timeOut = attendance.ClockOutTime,
+                    isLate = IsLate(attendance),
+                    remark = attendance.Remark ?? "N/A"
+                };
+                attendanceDTOs.Add(attendanceDTO);
+            }
+            return attendanceDTOs;
+        }  
+
+        //function to check if the staff is late based on it's schedule
+        public static bool IsLate(MPTC_API.Models.Attendance.Attendance attendance)
+        {
+            if(attendance.ClockInTime != null)
+            {
+                TimeSpan timeIn = attendance.ClockInTime.Value;
+                TimeSpan begin = attendance.Staff.Schedules.Where(s => s.DayOfWeek == attendance.Date.DayOfWeek).FirstOrDefault().Begin;
+                return timeIn > begin;
+            }
+            return false;
+        }
        
     }
 

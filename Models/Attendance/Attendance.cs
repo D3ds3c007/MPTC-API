@@ -18,6 +18,7 @@ namespace MPTC_API.Models.Attendance
 
         public TimeSpan?  ClockInTime  { get; set; }
         public TimeSpan?  ClockOutTime  { get; set; }
+        public string? Remark { get; set; }
         public DateTime LastDetectedTime { get; set; }
 
 
