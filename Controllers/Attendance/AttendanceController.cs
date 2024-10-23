@@ -46,6 +46,58 @@ namespace MPTC_API.Controllers.Attendance
 
         }
 
+        [HttpPost("record")]
+        public async Task<IActionResult> AddAttendance([FromBody]AttendanceRecordDTO attendanceRecordDTO)
+        {
+            //find staff by matricule
+            var staff = _context.Staffs.FirstOrDefault(s => s.Matricule == attendanceRecordDTO.Matricule);
+
+            if(staff == null){
+                return BadRequest("Staff not found");
+            }
+            //Map to Attendance
+            MPTC_API.Models.Attendance.Attendance attendance = new MPTC_API.Models.Attendance.Attendance
+            {
+                Staff = staff,
+                StaffId = staff.IdStaff,
+                ClockInTime = attendanceRecordDTO.ClockIn,
+                ClockOutTime = attendanceRecordDTO.ClockOut,
+                Date = attendanceRecordDTO.Date.ToUniversalTime(),
+                Remark = attendanceRecordDTO.Remarks,
+                LastDetectedTime = attendanceRecordDTO.Date.ToUniversalTime()
+            };
+
+            try{
+                _context.Attendances.Add(attendance);
+                _context.SaveChanges();
+
+                //Print the attendance record details
+                Console.WriteLine("Attendance record added successfully");
+                Console.WriteLine($"ID: {attendance.IdAttendance}");
+                Console.WriteLine($"Staff: {attendance.Staff.StaffName} {attendance.Staff.FirstName}");
+                Console.WriteLine($"Date: {attendance.Date}");
+                Console.WriteLine($"Clock In: {attendance.ClockInTime}");
+                Console.WriteLine($"Clock Out: {attendance.ClockOutTime}");
+                Console.WriteLine($"Remark: {attendance.Remark}");
+                Console.WriteLine($"Is Late: {AttendanceService.IsLate(attendance)}");
+
+                AttendanceDTO attendanceDTO = new AttendanceDTO
+                {
+                    AttendanceId = attendance.IdAttendance,
+                    Matricule = attendance.Staff.Matricule,
+                    StaffName = attendance.Staff.FirstName + " " + attendance.Staff.StaffName,
+                    recordDate = attendance.Date,
+                    timeIn = attendance.ClockInTime,
+                    timeOut = attendance.ClockOutTime,
+                    isLate = AttendanceService.IsLate(attendance),
+                    remark = attendance.Remark ?? "N/A"
+                };
+                return Ok(attendanceDTO);
+            }catch(Exception e){
+                return BadRequest(e.Message + e.StackTrace + e.InnerException);
+            }
+        }
+
      
      
 

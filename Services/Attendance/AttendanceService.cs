@@ -123,12 +123,20 @@ namespace MPTC_API.Services.Attendance
         }  
 
         //function to check if the staff is late based on it's schedule
-        public static bool IsLate(MPTC_API.Models.Attendance.Attendance attendance)
+        public static  bool IsLate(MPTC_API.Models.Attendance.Attendance attendance)
         {
             if(attendance.ClockInTime != null)
             {
                 TimeSpan timeIn = attendance.ClockInTime.Value;
-                TimeSpan begin = attendance.Staff.Schedules.Where(s => s.DayOfWeek == attendance.Date.DayOfWeek).FirstOrDefault().Begin;
+
+                TimeSpan? begin = attendance.Staff.Schedules.FirstOrDefault(s => s.DayOfWeek == attendance.Date.DayOfWeek)?.Begin;
+
+                //return false if begin is null
+                if(begin == null)
+                {
+                    return false;
+                }
+                
                 return timeIn > begin;
             }
             return false;

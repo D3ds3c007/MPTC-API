@@ -147,6 +147,14 @@ namespace MPTC_API.Services.Attendance
             return new string(password.ToString().OrderBy(c => random.Next()).ToArray());
         }
 
+        public static List<string> GetMatriculeSuggestions(string query, MptcContext _context)
+        { 
+            List<Staff> staffs = _context.Staffs.Where(s => s.Matricule.Contains(query)).ToList();
+            List<string> suggestions = new List<string>();
+            staffs.ForEach(staff => suggestions.Add(staff.Matricule));
+            return suggestions;
+        }
+
         
 
 

@@ -118,6 +118,12 @@ namespace MPTC_API.Controllers.Attendance
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("matricule-suggestions")]
+        public IActionResult GetMatriculeSuggestions([FromQuery] string query)
+        {
+            return Ok(StaffService.GetMatriculeSuggestions(query, _context));          
+        }
         
           
 
