@@ -3,6 +3,7 @@ namespace MPTC_API.Models.Attendance.MemberDTO
     public class AttendanceRecordDTO
     {
        
+       public int? AttendanceId {get; set;}
        public string Matricule { get; set; }
        public TimeSpan ClockIn { get; set; }
 
