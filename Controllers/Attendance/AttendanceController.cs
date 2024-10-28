@@ -130,10 +130,24 @@ namespace MPTC_API.Controllers.Attendance
             };
 
             try{
+                
                 _context.Attendances.Update(attendance);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
-                return Ok(attendance);
+                AttendanceDTO dto = new AttendanceDTO
+                {
+                
+                    AttendanceId = attendance.IdAttendance,
+                    Matricule = attendance.Staff.Matricule,
+                    StaffName = attendance.Staff.FirstName + " " + attendance.Staff.StaffName,
+                    recordDate = attendance.Date,
+                    timeIn = attendance.ClockInTime,
+                    timeOut = attendance.ClockOutTime,
+                    isLate = AttendanceService.IsLate(attendance),
+                    remark = attendance.Remark ?? "N/A"
+                };
+
+                return Ok(dto);
             }catch(Exception e){
                 return BadRequest(e.Message + e.StackTrace + e.InnerException);
             }
