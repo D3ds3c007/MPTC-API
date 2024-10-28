@@ -9,7 +9,7 @@ using EllipticCurve.Utils;
 using MPTC_API.Services.Attendance;
 using MPTC_API.Services;
 using static System.Text.Json.JsonElement;
-using MPTC_API.Models.Attendance.StaffDTO;
+using MPTC_API.Models.StaffDTO;
 using System.Text.RegularExpressions;
 using Emgu.CV;
 using Emgu.CV.CvEnum;

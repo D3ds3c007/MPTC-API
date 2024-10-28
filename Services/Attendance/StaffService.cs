@@ -4,7 +4,8 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
-using MPTC_API.Models.Attendance.StaffDTO;
+using MPTC_API.Models.DTO.StaffDTO;
+using MPTC_API.Models.StaffDTO;
 using MPTC_API.Services.Authentication;
 
 namespace MPTC_API.Services.Attendance

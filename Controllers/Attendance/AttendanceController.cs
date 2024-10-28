@@ -6,6 +6,7 @@ using Emgu.CV.CvEnum;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Services.Attendance;
 using MPTC_API.Models.Attendance.MemberDTO;
+using MPTC_API.Models.StaffDTO;
 
 
 namespace MPTC_API.Controllers.Attendance
@@ -33,8 +34,27 @@ namespace MPTC_API.Controllers.Attendance
         {
 
             try{
+                IEnumerable<StaffScheduleDTO> abences = await AttendanceService.GetAbsenceAsync(DateTime.Now, _context);
+
+                // loop the absence and console writeLine
+                
+
                 List<MPTC_API.Models.Attendance.Attendance> attendances = _context.Attendances.OrderByDescending(a => a.Date).ToList();
                 List<AttendanceDTO> attendanceDTOs =  AttendanceService.MapAttendanceToDTO(attendances);
+
+                foreach(var absence in abences)
+                {
+                    attendanceDTOs.Add(new AttendanceDTO
+                    {
+                        AttendanceId = 0,
+                        Matricule = absence.Matricule,
+                        StaffName = absence.StaffName,
+                        recordDate = absence.Date,
+                        timeIn = null,
+                        timeOut = null,
+                        remark = "Absent"
+                    });
+                }
                 return Ok(attendanceDTOs);
 
             }catch(Exception e){

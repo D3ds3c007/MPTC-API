@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using MPTC_API.Models.Attendance;
 
-namespace MPTC_API.Models.Attendance.StaffDTO
+namespace MPTC_API.Models.DTO.StaffDTO
 {
     public class StaffDTO
     {

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Models.BigData;
 using MPTC_API.Models.Education;
+using MPTC_API.Models.StaffDTO;
 using MPTC_API.Services.Attendance;
 
 namespace MPTC_API.Data;
@@ -161,6 +162,8 @@ public partial class MptcContext : IdentityDbContext<Member>
             .HasOne(s => s.Nationality)
             .WithMany(st => st.Staffs)
             .HasForeignKey(t => t.NationalityId);
+        modelBuilder.Entity<StaffScheduleDTO>()
+            .HasNoKey();
 
     }
 
@@ -231,4 +234,5 @@ public partial class MptcContext : IdentityDbContext<Member>
     public virtual DbSet<ResultNoteSection> ResultNoteSections { get; set; }
     public virtual DbSet<ResultNote> ResultNotes { get; set; }
     public virtual DbSet<Nationality> Nationalitys { get; set; }
+    public virtual DbSet<StaffScheduleDTO> StaffScheduleDTOs { get; set; }
 }

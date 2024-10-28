@@ -77,5 +77,29 @@ FROM (
 GROUP BY ap."IdStaff", ap."StaffName"
 ORDER BY ap."IdStaff";
 
+-- Get list of employees with absences for a specific date
+
+SELECT 
+    st."IdStaff",
+    st."StaffName",
+    s."DayOfWeek",
+    DATE '2024-10-24' AS "Date"
+FROM public."Staffs" st
+JOIN public."Schedules" s 
+    ON st."IdStaff" = s."StaffId"
+    AND s."DayOfWeek" = EXTRACT(DOW FROM DATE '2024-10-15')  -- Match the day of the week for the specific date
+LEFT JOIN public."Attendances" a 
+    ON st."IdStaff" = a."StaffId" 
+    AND DATE(a."Date") = DATE '2024-10-24'  -- Check for attendance on the specific date
+LEFT JOIN public."TimeOffs" t 
+    ON st."IdStaff" = t."StaffId" 
+    AND DATE '2024-10-24' BETWEEN t."BeginTimeOff" AND t."EndTimeOff"  -- Check if the employee had time off on that date
+WHERE 
+    a."IdAttendance" IS NULL  -- No attendance record for the date
+    AND t."IdTimeOff" IS NULL  -- No time-off record for the date
+ORDER BY 
+    st."IdStaff";
+
+
 
 

@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using MPTC_API.Data;
 using MPTC_API.Hub;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Models.Attendance.MemberDTO;
+using MPTC_API.Models.StaffDTO;
+
 
 
 namespace MPTC_API.Services.Attendance
@@ -140,6 +143,44 @@ namespace MPTC_API.Services.Attendance
                 return timeIn > begin;
             }
             return false;
+        }
+
+        public static async Task<IEnumerable<StaffScheduleDTO>> GetAbsenceAsync(DateTime date, MptcContext _context)
+        {
+            //parse date to the format (yyyy-MM-dd)
+            string dateStr = date.ToString("yyyy-MM-dd");
+
+            var result = await _context.StaffScheduleDTOs
+            .FromSqlRaw(@"
+                    SELECT
+                        st.""IdStaff"",
+                        st.""Matricule"",
+                        st.""StaffName"",
+                        s.""DayOfWeek"",
+                        DATE '2024-10-24' AS ""Date""
+                    FROM public.""Staffs"" st
+                    JOIN public.""Schedules"" s 
+                        ON st.""IdStaff"" = s.""StaffId""
+                        AND s.""DayOfWeek"" = EXTRACT(DOW FROM DATE '2024-10-15')
+                    LEFT JOIN public.""Attendances"" a 
+                        ON st.""IdStaff"" = a.""StaffId"" 
+                        AND DATE(a.""Date"") = DATE '2024-10-24'
+                    LEFT JOIN public.""TimeOffs"" t 
+                        ON st.""IdStaff"" = t.""StaffId"" 
+                        AND DATE '2024-10-24' BETWEEN t.""BeginTimeOff"" AND t.""EndTimeOff""
+                    WHERE 
+                        a.""IdAttendance"" IS NULL
+                        AND t.""IdTimeOff"" IS NULL
+                    ORDER BY 
+                        st.""IdStaff""")
+                .ToListAsync();
+
+            foreach (var staff in result)
+            {
+                Console.WriteLine($"StaffId: {staff.IdStaff}, StaffName: {staff.StaffName}, DayOfWeek: {staff.DayOfWeek}, Date: {staff.Date}");
+            }
+
+            return result;
         }
        
     }
