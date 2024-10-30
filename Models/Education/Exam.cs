@@ -29,14 +29,15 @@ namespace MPTC_API.Models.Education
         [Required(ErrorMessage = "DateCreated is required and cannot be empty")]
         public DateTime DateCreated { get; set; }
 
-        [Required(ErrorMessage = "ProfSubjectId is required and cannot be empty")]
-        public int ProfSubjectId { get; set; }
+        [Required(ErrorMessage = "StaffId is required and cannot be empty")]
+        public int StaffId { get; set; }
 
         //navigation property
         public virtual Subject Subject { get; set; }
         public virtual Level Level { get; set; }
-        public virtual ProfSubject ProfSubject { get; set; }
+        public virtual Staff Staff { get; set; }
         public virtual Period Period { get; set; }
+        public virtual ICollection<ResultNote> ResultNotes { get; set; }
 
     }
 

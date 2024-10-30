@@ -14,6 +14,7 @@ namespace MPTC_API.Models.Education
         public virtual ICollection<SubjectSection> SubjectSections { get; set; }
         public virtual ICollection<StudentLevel> StudentLevels { get; set; }
         public virtual ICollection<Exam> Exams { get; set; }
+        public virtual ICollection<ProfLevel> ProfLevels { get; set; }
 
     }
 

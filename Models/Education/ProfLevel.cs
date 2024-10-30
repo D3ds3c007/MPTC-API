@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using MPTC_API.Models.Attendance;
 
 namespace MPTC_API.Models.Education
 {
@@ -7,8 +8,8 @@ namespace MPTC_API.Models.Education
         [Key]
         public int IdProfLevel { get; set; }
 
-        [Required(ErrorMessage = "ProfSubjectId is required and cannot be empty")]
-        public int ProfSubjectId { get; set; }
+        [Required(ErrorMessage = "StaffId is required and cannot be empty")]
+        public int StaffId { get; set; }
 
         [Required(ErrorMessage = "LevelId is required and cannot be empty")]
         public int LevelId { get; set; }
@@ -17,7 +18,7 @@ namespace MPTC_API.Models.Education
         public int PeriodId { get; set; }
 
         //navigation property
-        public virtual ProfSubject ProfSubject { get; set; }
+        public virtual Staff Staff { get; set; }
         public virtual Level Level { get; set; }
         public virtual Period Period { get; set; }
 

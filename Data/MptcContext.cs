@@ -146,14 +146,25 @@ public partial class MptcContext : IdentityDbContext<Member>
             .WithMany(st => st.Exams)
             .HasForeignKey(t => t.PeriodId);
         modelBuilder.Entity<Exam>()
-            .HasOne(s => s.ProfSubject)
+            .HasOne(s => s.Staff)
             .WithMany(st => st.Exams)
-            .HasForeignKey(t => t.ProfSubjectId);
+            .HasForeignKey(t => t.StaffId);
         modelBuilder.Entity<ResultNote>()
-            .HasOne(s => s.ProfSubject)
+            .HasOne(s => s.Exam)
             .WithMany(st => st.ResultNotes)
-            .HasForeignKey(t => t.ProfSubjectId);
-
+            .HasForeignKey(t => t.ExamId);
+        modelBuilder.Entity<ResultNote>()
+            .HasOne(s => s.Staff)
+            .WithMany(st => st.ResultNotes)
+            .HasForeignKey(t => t.StaffId);
+        modelBuilder.Entity<ProfLevel>()
+            .HasOne(s => s.Level)
+            .WithMany(st => st.ProfLevels)
+            .HasForeignKey(t => t.LevelId);
+        modelBuilder.Entity<ProfLevel>()
+            .HasOne(s => s.Staff)
+            .WithMany(st => st.ProfLevels)
+            .HasForeignKey(t => t.StaffId);
     }
 
    

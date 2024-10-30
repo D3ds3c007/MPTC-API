@@ -5,7 +5,7 @@
 namespace MPTC_API.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateEducationDatabase : Migration
+    public partial class FinalMigrate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

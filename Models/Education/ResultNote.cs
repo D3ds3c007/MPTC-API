@@ -29,8 +29,8 @@ namespace MPTC_API.Models.Education
         [Required(ErrorMessage = "Status is required and cannot be empty")]
         public int Status { get; set; }
 
-        [Required(ErrorMessage = "ProfSubjectId is required and cannot be empty")]
-        public int ProfSubjectId { get; set; }
+        [Required(ErrorMessage = "StaffId is required and cannot be empty")]
+        public int StaffId { get; set; }
 
         [Required(ErrorMessage = "Date is required and cannot be empty")]
         public DateTime Date { get; set; }
@@ -38,7 +38,7 @@ namespace MPTC_API.Models.Education
         //navigation property
         public virtual Student Student { get; set; }
         public virtual Exam Exam { get; set; }
-        public virtual ProfSubject ProfSubject { get; set; }
+        public virtual Staff Staff { get; set; }
         public virtual ICollection<ResultNoteSection> ResultNoteSections { get; set; }
 
     }
