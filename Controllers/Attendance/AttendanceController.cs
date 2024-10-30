@@ -7,6 +7,7 @@ using MPTC_API.Models.Attendance;
 using MPTC_API.Services.Attendance;
 using MPTC_API.Models.Attendance.MemberDTO;
 using MPTC_API.Models.StaffDTO;
+using MPTC_API.Models.DTO;
 
 
 namespace MPTC_API.Controllers.Attendance
@@ -27,6 +28,16 @@ namespace MPTC_API.Controllers.Attendance
             _context = context;
         }
 
+        [HttpGet("leaderboard")]
+        public async Task<IActionResult> GetLeaderboard()
+        {
+            try{
+                IEnumerable<LeaderboardDTO> leaderboard = await AttendanceService.GetLeaderboardAsync(10, _context);
+                return Ok(leaderboard);
+            }catch(Exception e){
+                return BadRequest(e.Message);
+            }
+        }
        
 
         [HttpGet("records")]

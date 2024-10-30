@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Models.BigData;
+using MPTC_API.Models.DTO;
 using MPTC_API.Models.Education;
 using MPTC_API.Models.StaffDTO;
 using MPTC_API.Services.Attendance;
@@ -164,6 +165,8 @@ public partial class MptcContext : IdentityDbContext<Member>
             .HasForeignKey(t => t.NationalityId);
         modelBuilder.Entity<StaffScheduleDTO>()
             .HasNoKey();
+        modelBuilder.Entity<LeaderboardDTO>()
+            .HasNoKey();
 
     }
 
@@ -235,4 +238,6 @@ public partial class MptcContext : IdentityDbContext<Member>
     public virtual DbSet<ResultNote> ResultNotes { get; set; }
     public virtual DbSet<Nationality> Nationalitys { get; set; }
     public virtual DbSet<StaffScheduleDTO> StaffScheduleDTOs { get; set; }
+    public virtual DbSet<LeaderboardDTO> LeaderboardDTOs { get; set; }
+
 }

@@ -1,4 +1,4 @@
-namespace MPTC_API.Models.Attendance.MemberDTO
+namespace MPTC_API.Models.DTO
 {
     public class AttendanceRecordDTO
     {

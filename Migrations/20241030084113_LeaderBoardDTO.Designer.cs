@@ -3,6 +3,7 @@ using System;
 using MPTC_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MPTC_API.Migrations
 {
     [DbContext(typeof(MptcContext))]
-    partial class MptcContextModelSnapshot : ModelSnapshot
+    [Migration("20241030084113_LeaderBoardDTO")]
+    partial class LeaderBoardDTO
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -510,9 +513,8 @@ namespace MPTC_API.Migrations
                     b.Property<int>("Month")
                         .HasColumnType("integer");
 
-                    b.Property<string>("PunctualityRating")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("PunctualityRating")
+                        .HasColumnType("integer");
 
                     b.Property<int>("StaffId")
                         .HasColumnType("integer");
