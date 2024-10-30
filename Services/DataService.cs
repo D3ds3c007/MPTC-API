@@ -7,6 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 using MPTC_API.Data;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Models.Attendance.MemberDTO;
+using MPTC_API.Models.DTO;
+using MPTC_API.Models.Education;
+using System.Globalization;
 
 namespace MPTC_API.Services.Authentication
 {
@@ -67,6 +70,67 @@ namespace MPTC_API.Services.Authentication
             employeeFormDataDTO.Privileges = GetPrivilegeDTOs(_context);
             employeeFormDataDTO.Nationalities = GetNationalities(_context);
             return employeeFormDataDTO;
+        }
+
+        public static List<LevelDTO> GetLevels(MptcContext context)
+        {
+            List<LevelDTO> levelDTOs = new List<LevelDTO>();
+            List<Level> levels = context.Levels.ToList();
+
+            foreach (Level level in levels)
+            {
+                LevelDTO levelDTO = new LevelDTO();
+                    levelDTO.IdLevel = level.IdLevel;
+                    levelDTO.LevelName = level.LevelName;
+
+                levelDTOs.Add(levelDTO);
+            }
+
+            return levelDTOs;
+        }
+
+        public static List<SubjectDTO> GetSubjects(MptcContext context)
+        {
+            List<SubjectDTO> subjectDTOs = new List<SubjectDTO>();
+            List<Subject> subjects = context.Subjects.ToList();
+
+            foreach (Subject subject in subjects)
+            {
+                SubjectDTO subjectDTO = new SubjectDTO();
+                    subjectDTO.IdSubject = subject.IdSubject;
+                    subjectDTO.SubjectName = subject.SubjectName;
+
+                subjectDTOs.Add(subjectDTO);
+            }
+
+            return subjectDTOs;
+        }
+
+        public static List<PeriodDTO> GetPeriods(MptcContext context)
+        {
+            List<PeriodDTO> periodDTOs = new List<PeriodDTO>();
+            List<Period> periods = context.Periods.ToList();
+
+            foreach (Period period in periods)
+            {
+                PeriodDTO periodDTO = new PeriodDTO();
+                    periodDTO.IdPeriod = period.IdPeriod;
+                    periodDTO.Name = DataService.FormatDateRange(period.BeginDate, period.EndDate);
+
+                periodDTOs.Add(periodDTO);
+            }
+
+            return periodDTOs;
+        }
+
+        public static string FormatDateRange(DateTime startDate, DateTime endDate)
+        {
+            // Get the short month names and year for both dates
+            string startMonthYear = startDate.ToString("MMM yyyy", CultureInfo.InvariantCulture).ToUpper();
+            string endMonthYear = endDate.ToString("MMM yyyy", CultureInfo.InvariantCulture).ToUpper();
+
+            // Format as requested
+            return $"({startMonthYear} - {endMonthYear})";
         }
     }
 
