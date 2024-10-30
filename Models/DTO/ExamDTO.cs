@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using MPTC_API.Models.Attendance;
+using MPTC_API.Models.Education;
 
-namespace MPTC_API.Models.Education
+namespace MPTC_API.Models.DTO
 {
     public class ExamDTO
     {

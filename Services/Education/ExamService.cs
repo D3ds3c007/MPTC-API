@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using MPTC_API.Data;
 using MPTC_API.Models.Education;
+using MPTC_API.Models.DTO;
 
 namespace MPTC_API.Services.Attendance
 {
