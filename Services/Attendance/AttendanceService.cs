@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using MPTC_API.Data;
 using MPTC_API.Hub;
-using MPTC_API.Migrations;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Models.Attendance.MemberDTO;
 using MPTC_API.Models.StaffDTO;

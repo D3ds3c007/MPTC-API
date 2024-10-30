@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MPTC_API.Migrations
 {
     [DbContext(typeof(MptcContext))]
-    [Migration("20241030090141_MAJLeaderBoardDTO")]
-    partial class MAJLeaderBoardDTO
+    [Migration("20241030111054_MigrationMlay")]
+    partial class MigrationMlay
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -517,6 +517,9 @@ namespace MPTC_API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Rank")
+                        .HasColumnType("integer");
+
                     b.Property<int>("StaffId")
                         .HasColumnType("integer");
 
@@ -544,6 +547,9 @@ namespace MPTC_API.Migrations
                     b.Property<int>("LevelId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("PeriodId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Session")
                         .HasColumnType("integer");
 
@@ -564,6 +570,8 @@ namespace MPTC_API.Migrations
                     b.HasKey("IdExam");
 
                     b.HasIndex("LevelId");
+
+                    b.HasIndex("PeriodId");
 
                     b.HasIndex("StaffId");
 
@@ -587,6 +595,53 @@ namespace MPTC_API.Migrations
                     b.HasKey("IdLevel");
 
                     b.ToTable("Levels");
+                });
+
+            modelBuilder.Entity("MPTC_API.Models.Education.Period", b =>
+                {
+                    b.Property<int>("IdPeriod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdPeriod"));
+
+                    b.Property<DateTime>("BeginDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("IdPeriod");
+
+                    b.ToTable("Periods");
+                });
+
+            modelBuilder.Entity("MPTC_API.Models.Education.ProfLevel", b =>
+                {
+                    b.Property<int>("IdProfLevel")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdProfLevel"));
+
+                    b.Property<int>("LevelId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PeriodId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("IdProfLevel");
+
+                    b.HasIndex("LevelId");
+
+                    b.HasIndex("PeriodId");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("ProfLevels");
                 });
 
             modelBuilder.Entity("MPTC_API.Models.Education.ProfSubject", b =>
@@ -629,14 +684,23 @@ namespace MPTC_API.Migrations
                     b.Property<int>("ExamId")
                         .HasColumnType("integer");
 
-                    b.Property<double>("ScoreFinal")
+                    b.Property<double>("FinalScore")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Percentage")
                         .HasColumnType("double precision");
 
                     b.Property<int>("StaffId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
                     b.Property<int>("StudentId")
                         .HasColumnType("integer");
+
+                    b.Property<double>("TotalPoint")
+                        .HasColumnType("double precision");
 
                     b.HasKey("IdResultNote");
 
@@ -659,6 +723,9 @@ namespace MPTC_API.Migrations
 
                     b.Property<int>("ResultNoteId")
                         .HasColumnType("integer");
+
+                    b.Property<double>("Socre")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("SubjectSectionId")
                         .HasColumnType("integer");
@@ -751,10 +818,10 @@ namespace MPTC_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdStudentLevel"));
 
-                    b.Property<DateTime>("BeginDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("LevelId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PeriodId")
                         .HasColumnType("integer");
 
                     b.Property<int>("StudentId")
@@ -763,6 +830,8 @@ namespace MPTC_API.Migrations
                     b.HasKey("IdStudentLevel");
 
                     b.HasIndex("LevelId");
+
+                    b.HasIndex("PeriodId");
 
                     b.HasIndex("StudentId");
 
@@ -815,69 +884,6 @@ namespace MPTC_API.Migrations
                     b.HasIndex("SubjectId");
 
                     b.ToTable("SubjectSections");
-                });
-
-            modelBuilder.Entity("MPTC_API.Models.Education.TempResult", b =>
-                {
-                    b.Property<int>("IdTempResult")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdTempResult"));
-
-                    b.Property<double>("Accuracy")
-                        .HasColumnType("double precision");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ExamId")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("FinalScore")
-                        .HasColumnType("double precision");
-
-                    b.Property<int>("StaffId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("IdTempResult");
-
-                    b.HasIndex("ExamId");
-
-                    b.HasIndex("StaffId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("TempResults");
-                });
-
-            modelBuilder.Entity("MPTC_API.Models.Education.TempResultSection", b =>
-                {
-                    b.Property<int>("IdTempResultSection")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdTempResultSection"));
-
-                    b.Property<double>("Score")
-                        .HasColumnType("double precision");
-
-                    b.Property<int>("SubjectSectionId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TempResultId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("IdTempResultSection");
-
-                    b.HasIndex("SubjectSectionId");
-
-                    b.HasIndex("TempResultId");
-
-                    b.ToTable("TempResultSections");
                 });
 
             modelBuilder.Entity("MPTC_API.Models.StaffDTO.StaffScheduleDTO", b =>
@@ -1192,6 +1198,12 @@ namespace MPTC_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MPTC_API.Models.Education.Period", "Period")
+                        .WithMany("Exams")
+                        .HasForeignKey("PeriodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MPTC_API.Models.Attendance.Staff", "Staff")
                         .WithMany("Exams")
                         .HasForeignKey("StaffId")
@@ -1206,9 +1218,38 @@ namespace MPTC_API.Migrations
 
                     b.Navigation("Level");
 
+                    b.Navigation("Period");
+
                     b.Navigation("Staff");
 
                     b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("MPTC_API.Models.Education.ProfLevel", b =>
+                {
+                    b.HasOne("MPTC_API.Models.Education.Level", "Level")
+                        .WithMany("ProfLevels")
+                        .HasForeignKey("LevelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MPTC_API.Models.Education.Period", "Period")
+                        .WithMany("ProfLevels")
+                        .HasForeignKey("PeriodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MPTC_API.Models.Attendance.Staff", "Staff")
+                        .WithMany("ProfLevels")
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Level");
+
+                    b.Navigation("Period");
+
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("MPTC_API.Models.Education.ProfSubject", b =>
@@ -1233,7 +1274,7 @@ namespace MPTC_API.Migrations
             modelBuilder.Entity("MPTC_API.Models.Education.ResultNote", b =>
                 {
                     b.HasOne("MPTC_API.Models.Education.Exam", "Exam")
-                        .WithMany()
+                        .WithMany("ResultNotes")
                         .HasForeignKey("ExamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1303,6 +1344,12 @@ namespace MPTC_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MPTC_API.Models.Education.Period", "Period")
+                        .WithMany("StudentLevels")
+                        .HasForeignKey("PeriodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MPTC_API.Models.Education.Student", "Student")
                         .WithMany("StudentLevels")
                         .HasForeignKey("StudentId")
@@ -1310,6 +1357,8 @@ namespace MPTC_API.Migrations
                         .IsRequired();
 
                     b.Navigation("Level");
+
+                    b.Navigation("Period");
 
                     b.Navigation("Student");
                 });
@@ -1339,52 +1388,6 @@ namespace MPTC_API.Migrations
                     b.Navigation("Section");
 
                     b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("MPTC_API.Models.Education.TempResult", b =>
-                {
-                    b.HasOne("MPTC_API.Models.Education.Exam", "Exam")
-                        .WithMany()
-                        .HasForeignKey("ExamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MPTC_API.Models.Attendance.Staff", "Staff")
-                        .WithMany("TempResults")
-                        .HasForeignKey("StaffId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MPTC_API.Models.Education.Student", "Student")
-                        .WithMany("TempResults")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Exam");
-
-                    b.Navigation("Staff");
-
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("MPTC_API.Models.Education.TempResultSection", b =>
-                {
-                    b.HasOne("MPTC_API.Models.Education.SubjectSection", "SubjectSection")
-                        .WithMany("TempResultSections")
-                        .HasForeignKey("SubjectSectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MPTC_API.Models.Education.TempResult", "TempResult")
-                        .WithMany("TempResultSections")
-                        .HasForeignKey("TempResultId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SubjectSection");
-
-                    b.Navigation("TempResult");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1468,6 +1471,8 @@ namespace MPTC_API.Migrations
                     b.Navigation("Member")
                         .IsRequired();
 
+                    b.Navigation("ProfLevels");
+
                     b.Navigation("ProfSubjects");
 
                     b.Navigation("Resources");
@@ -1477,8 +1482,6 @@ namespace MPTC_API.Migrations
                     b.Navigation("Sanctions");
 
                     b.Navigation("Schedules");
-
-                    b.Navigation("TempResults");
 
                     b.Navigation("TimeOffs");
                 });
@@ -1505,13 +1508,29 @@ namespace MPTC_API.Migrations
                     b.Navigation("Resources");
                 });
 
+            modelBuilder.Entity("MPTC_API.Models.Education.Exam", b =>
+                {
+                    b.Navigation("ResultNotes");
+                });
+
             modelBuilder.Entity("MPTC_API.Models.Education.Level", b =>
                 {
                     b.Navigation("Exams");
 
+                    b.Navigation("ProfLevels");
+
                     b.Navigation("StudentLevels");
 
                     b.Navigation("SubjectSections");
+                });
+
+            modelBuilder.Entity("MPTC_API.Models.Education.Period", b =>
+                {
+                    b.Navigation("Exams");
+
+                    b.Navigation("ProfLevels");
+
+                    b.Navigation("StudentLevels");
                 });
 
             modelBuilder.Entity("MPTC_API.Models.Education.ResultNote", b =>
@@ -1529,8 +1548,6 @@ namespace MPTC_API.Migrations
                     b.Navigation("ResultNotes");
 
                     b.Navigation("StudentLevels");
-
-                    b.Navigation("TempResults");
                 });
 
             modelBuilder.Entity("MPTC_API.Models.Education.Subject", b =>
@@ -1545,13 +1562,6 @@ namespace MPTC_API.Migrations
             modelBuilder.Entity("MPTC_API.Models.Education.SubjectSection", b =>
                 {
                     b.Navigation("ResultNoteSections");
-
-                    b.Navigation("TempResultSections");
-                });
-
-            modelBuilder.Entity("MPTC_API.Models.Education.TempResult", b =>
-                {
-                    b.Navigation("TempResultSections");
                 });
 #pragma warning restore 612, 618
         }

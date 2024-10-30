@@ -514,6 +514,9 @@ namespace MPTC_API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Rank")
+                        .HasColumnType("integer");
+
                     b.Property<int>("StaffId")
                         .HasColumnType("integer");
 
@@ -878,69 +881,6 @@ namespace MPTC_API.Migrations
                     b.HasIndex("SubjectId");
 
                     b.ToTable("SubjectSections");
-                });
-
-            modelBuilder.Entity("MPTC_API.Models.Education.TempResult", b =>
-                {
-                    b.Property<int>("IdTempResult")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdTempResult"));
-
-                    b.Property<double>("Accuracy")
-                        .HasColumnType("double precision");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ExamId")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("FinalScore")
-                        .HasColumnType("double precision");
-
-                    b.Property<int>("StaffId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("IdTempResult");
-
-                    b.HasIndex("ExamId");
-
-                    b.HasIndex("StaffId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("TempResults");
-                });
-
-            modelBuilder.Entity("MPTC_API.Models.Education.TempResultSection", b =>
-                {
-                    b.Property<int>("IdTempResultSection")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdTempResultSection"));
-
-                    b.Property<double>("Score")
-                        .HasColumnType("double precision");
-
-                    b.Property<int>("SubjectSectionId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TempResultId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("IdTempResultSection");
-
-                    b.HasIndex("SubjectSectionId");
-
-                    b.HasIndex("TempResultId");
-
-                    b.ToTable("TempResultSections");
                 });
 
             modelBuilder.Entity("MPTC_API.Models.StaffDTO.StaffScheduleDTO", b =>
