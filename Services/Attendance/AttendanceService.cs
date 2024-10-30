@@ -89,14 +89,15 @@ namespace MPTC_API.Services.Attendance
             else
             {
                 var attendance = context.Attendances.Where(a => a.StaffId == StaffId).OrderByDescending(a => a.Date).FirstOrDefault();
-                if(isClockIn)
-                {
-                    attendance.ClockInTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
-                }
-                else
+                // if(isClockIn)
+                // {
+                //     attendance.ClockInTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
+                // }
+                if(!isClockIn)
                 {
                     attendance.ClockOutTime = DateTime.UtcNow.AddHours(3).TimeOfDay;
                 }
+                
                 attendance.LastDetectedTime = DateTime.UtcNow;
                 await context.SaveChangesAsync();
             } 
