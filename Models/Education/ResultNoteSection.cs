@@ -13,6 +13,9 @@ namespace MPTC_API.Models.Education
         [Required(ErrorMessage = "SubjectSectionId is required and cannot be empty")]
         public int SubjectSectionId { get; set; }
 
+        [Required(ErrorMessage = "Socre is required and cannot be empty")]
+        public double Socre { get; set; }
+
         //navigation property
         public virtual ResultNote ResultNote { get; set; }
         public virtual SubjectSection SubjectSection { get; set; }

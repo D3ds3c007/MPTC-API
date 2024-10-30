@@ -1,0 +1,20 @@
+using System.ComponentModel.DataAnnotations;
+using MPTC_API.Models.Attendance;
+
+namespace MPTC_API.Models.Education
+{
+    public class ExamDTO
+    {
+        public int? IdExam { get; set; }
+        public Period? Period { get; set; }
+        public int? Session { get; set; }
+        public string? Subject { get; set; }
+        public string? Level { get; set; }
+        public String? Uripath { get; set; }
+        public String UripathAssetNote { get; set; }
+        public DateTime? DateExam { get; set; }
+        public int? StaffId { get; set; }
+
+    }
+
+}

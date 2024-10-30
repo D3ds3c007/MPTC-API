@@ -9,6 +9,9 @@ namespace MPTC_API.Models.Education
         [Key]
         public int IdExam { get; set; }
 
+        [Required(ErrorMessage = "PeriodId is required and cannot be empty")]
+        public int PeriodId { get; set; }
+
         [Required(ErrorMessage = "Session is required and cannot be empty")]
         public int Session { get; set; }
 
@@ -35,6 +38,8 @@ namespace MPTC_API.Models.Education
         public virtual Level Level { get; set; }
         [JsonIgnore]
         public virtual Staff Staff { get; set; }
+        public virtual Period Period { get; set; }
+        public virtual ICollection<ResultNote> ResultNotes { get; set; }
 
     }
 

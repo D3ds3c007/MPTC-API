@@ -23,7 +23,6 @@ namespace MPTC_API.Models.Education
         public virtual Subject Subject { get; set; }
         public virtual Section Section { get; set; }
         public virtual Level Level { get; set; }
-        public virtual ICollection<TempResultSection> TempResultSections { get; set; }
         public virtual ICollection<ResultNoteSection> ResultNoteSections { get; set; }
 
 

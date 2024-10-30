@@ -58,11 +58,11 @@ namespace MPTC_API.Models.Attendance
         public virtual ICollection<Attendance> Attendances { get; set; }
         public virtual ICollection<Schedule> Schedules { get; set; }
         public virtual ICollection<TimeOff> TimeOffs { get; set; }
-        public virtual ICollection<Exam> Exams { get; set; }
         public virtual ICollection<ProfSubject> ProfSubjects { get; set; }
         public virtual ICollection<Resource> Resources { get; set; }
+        public virtual ICollection<Exam> Exams { get; set; }
         public virtual ICollection<ResultNote> ResultNotes { get; set; }
-        public virtual ICollection<TempResult> TempResults { get; set; }
+        public virtual ICollection<ProfLevel> ProfLevels { get; set; }
 
     }
 
