@@ -81,7 +81,7 @@ namespace MPTC_API.Services.Authentication
             {
                 LevelDTO levelDTO = new LevelDTO();
                     levelDTO.IdLevel = level.IdLevel;
-                    levelDTO.LevelName = level.LevelName;
+                    levelDTO.Name = level.LevelName;
 
                 levelDTOs.Add(levelDTO);
             }
@@ -98,7 +98,7 @@ namespace MPTC_API.Services.Authentication
             {
                 SubjectDTO subjectDTO = new SubjectDTO();
                     subjectDTO.IdSubject = subject.IdSubject;
-                    subjectDTO.SubjectName = subject.SubjectName;
+                    subjectDTO.Name = subject.SubjectName;
 
                 subjectDTOs.Add(subjectDTO);
             }
@@ -130,7 +130,7 @@ namespace MPTC_API.Services.Authentication
             string endMonthYear = endDate.ToString("MMM yyyy", CultureInfo.InvariantCulture).ToUpper();
 
             // Format as requested
-            return $"({startMonthYear} - {endMonthYear})";
+            return $"{startMonthYear} - {endMonthYear}";
         }
     }
 

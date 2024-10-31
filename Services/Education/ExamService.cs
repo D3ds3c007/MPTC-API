@@ -21,8 +21,8 @@ namespace MPTC_API.Services.Attendance
                 examDTO.IdExam = exam.IdExam;
                 examDTO.Period = exam.Period;
                 examDTO.Session = exam.Session;
-                examDTO.Subject = exam.Subject.SubjectName;
-                examDTO.Level = exam.Level.LevelName;
+                examDTO.Subject = exam.Subject;
+                examDTO.Level = exam.Level;
                 examDTO.Uripath = exam.Uripath;
                 examDTO.UripathAssetNote = exam.UripathAssetNote;
                 examDTO.DateExam = exam.DateCreated;
@@ -33,28 +33,71 @@ namespace MPTC_API.Services.Attendance
             return examDTOs;
         }
 
-        public static void createExam(MptcContext context)
+        public static void createExam(Exam exam, MptcContext _context)
         {
-            // List<ExamDTO> examDTOs = new List<ExamDTO>();
-
-            // List<Exam> exams = context.Exams.Add(exam);
-            // foreach (Exam exam in exams)
-            // {
-            //     ExamDTO examDTO = new ExamDTO();
-
-            //     examDTO.IdExam = exam.IdExam;
-            //     examDTO.Period = exam.Period;
-            //     examDTO.Session = exam.Session;
-            //     examDTO.Subject = exam.Subject.SubjectName;
-            //     examDTO.Level = exam.Level.LevelName;
-            //     examDTO.Uripath = exam.Uripath;
-            //     examDTO.UripathAssetNote = exam.UripathAssetNote;
-            //     examDTO.DateExam = exam.DateCreated;
-            //     examDTO.StaffId = exam.StaffId;
-
-            //     examDTOs.Add(examDTO);
-            // }
+            //create new exam
+            _context.Exams.Add(exam);
+            _context.SaveChangesAsync();
         }
+
+        public static List<ExamDTO> toExamDTO(List<Exam> exams)
+        {
+            List<ExamDTO> examDTOs = new List<ExamDTO>();
+
+            foreach (Exam exam in exams)
+            {
+                ExamDTO examDTO = new ExamDTO();
+
+                examDTO.IdExam = exam.IdExam;
+                examDTO.Period = exam.Period;
+                examDTO.Session = exam.Session;
+                examDTO.Subject = exam.Subject;
+                examDTO.Level = exam.Level;
+                examDTO.Uripath = exam.Uripath;
+                examDTO.UripathAssetNote = exam.UripathAssetNote;
+                examDTO.DateExam = exam.DateCreated;
+                examDTO.StaffId = exam.StaffId;
+
+                examDTOs.Add(examDTO);
+            }
+
+            return examDTOs;
+        }
+
+        public static async Task<string> UploadPDFAsync(IFormFile PDFfile)
+        {
+            string destinationPath = "Temp/";
+
+            if (PDFfile == null || Path.GetExtension(PDFfile.FileName).ToLower() != ".pdf")
+            {
+                return "Invalid file. Only PDF files are allowed.";
+            }
+
+            // Ensure the destination directory exists
+            if (!Directory.Exists(destinationPath))
+            {
+                Directory.CreateDirectory(destinationPath);
+            }
+
+            // Full path where the uploaded PDF file will be saved
+            var pdfFilePath = Path.Combine(destinationPath, PDFfile.FileName);
+
+            // Save the PDF file to the destination directory
+            try
+            {
+                using (var fileStream = new FileStream(pdfFilePath, FileMode.Create))
+                {
+                    await PDFfile.CopyToAsync(fileStream);
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"Error while saving the file: {ex.Message}";
+            }
+
+            return pdfFilePath;
+        }
+
     }
 
 }

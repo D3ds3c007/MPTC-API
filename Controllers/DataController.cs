@@ -9,6 +9,7 @@ using EllipticCurve.Utils;
 using MPTC_API.Services.Attendance;
 using MPTC_API.Services;
 using static System.Text.Json.JsonElement;
+using MPTC_API.Models.DTO;
 
 
 
@@ -40,6 +41,18 @@ namespace MPTC_API.Controllers
         {
             EmployeeFormDataDTO employeeFormDataDTO = DataService.GetEmployeeFormDataDTO(_context);
             return Ok(employeeFormDataDTO);
+        }
+
+        [HttpGet("exam-data")]
+        public async Task<IActionResult> SendDataToExamForm()
+        {
+            List<LevelDTO> levelDTOs = DataService.GetLevels(_context);
+            List<SubjectDTO> subjectDTOs = DataService.GetSubjects(_context);
+            List<PeriodDTO> periodDTOs = DataService.GetPeriods(_context);
+
+            List<Object> data = new List<Object>{levelDTOs, subjectDTOs, periodDTOs};
+
+            return Ok(data);
         }
     }
 }
