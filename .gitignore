@@ -1,5 +1,7 @@
 # Ignore Visual Studio temporary files, build results, and
 # some common Visual Studio configuration files
+obj/
+Temp/
 
 ## User-specific files ##
 *.rsuser

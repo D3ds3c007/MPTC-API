@@ -59,55 +59,55 @@ namespace MPTC_API.Controllers
         }
 
         [HttpPost("create-exam")]
-public async Task<IActionResult> UploadExam([FromForm] ExamFormDTO examformDTO)
-{
-    Console.WriteLine("Welcome to the ExamController");
-
-    // Get request header authorization
-    string token = Request.Headers["Authorization"];
-    Console.WriteLine($"token: {token}");
-
-    if (string.IsNullOrEmpty(token))
-    {
-        return Unauthorized("Authorization token is missing.");
-    }
-
-    if (examformDTO.Subject != null && examformDTO.Assetnote != null)
-    {
-        Console.WriteLine($"Received Asset Note File: {examformDTO.Assetnote.FileName}, Size: {examformDTO.Assetnote.Length}");
-        Console.WriteLine($"Received Subject File: {examformDTO.Subject.FileName}, Size: {examformDTO.Subject.Length}");
-
-        string assetnotePath = await ExamService.UploadPDFAsync(examformDTO.Assetnote);
-        string subjectPath = await ExamService.UploadPDFAsync(examformDTO.Subject);
-
-        DateTime dateExam;
-        if (!DateTime.TryParse(examformDTO.DateExam, out dateExam))
+        public async Task<IActionResult> UploadExam([FromForm] ExamFormDTO examformDTO)
         {
-            return BadRequest("Invalid exam date format.");
+            Console.WriteLine("Welcome to the ExamController");
+
+            // Get request header authorization
+            // string token = Request.Headers["Authorization"];
+            // Console.WriteLine($"token: {token}");
+
+            // if (string.IsNullOrEmpty(token))
+            // {
+            //     return Unauthorized("Authorization token is missing.");
+            // }
+
+            if (examformDTO.Subject != null && examformDTO.Assetnote != null)
+            {
+                Console.WriteLine($"Received Asset Note File: {examformDTO.Assetnote.FileName}, Size: {examformDTO.Assetnote.Length}");
+                Console.WriteLine($"Received Subject File: {examformDTO.Subject.FileName}, Size: {examformDTO.Subject.Length}");
+
+                string assetnotePath = await ExamService.UploadPDFAsync(examformDTO.Assetnote);
+                string subjectPath = await ExamService.UploadPDFAsync(examformDTO.Subject);
+
+                DateTime dateExam;
+                if (!DateTime.TryParse(examformDTO.DateExam, out dateExam))
+                {
+                    return BadRequest("Invalid exam date format.");
+                }
+
+                Exam e = new Exam
+                {
+                    PeriodId = (int)examformDTO.PeriodId,
+                    Session = (int)examformDTO.Session,
+                    SubjectId = (int)examformDTO.SubjectId,
+                    LevelId = (int)examformDTO.LevelId,
+                    Uripath = subjectPath,
+                    UripathAssetNote = assetnotePath,
+                    DateCreated = dateExam,
+                    StaffId = (int)examformDTO.StaffId
+                };
+
+                ExamService.createExam(e, _context);
+            }
+            else
+            {
+                Console.WriteLine("No file upload");
+                return BadRequest("No file uploaded.");
+            }
+
+            return Ok();
         }
-
-        Exam e = new Exam
-        {
-            PeriodId = (int)examformDTO.PeriodId,
-            Session = (int)examformDTO.Session,
-            SubjectId = (int)examformDTO.SubjectId,
-            LevelId = (int)examformDTO.LevelId,
-            Uripath = subjectPath,
-            UripathAssetNote = assetnotePath,
-            DateCreated = dateExam,
-            StaffId = (int)examformDTO.StaffId
-        };
-
-        ExamService.createExam(e, _context);
-    }
-    else
-    {
-        Console.WriteLine("No file upload");
-        return BadRequest("No file uploaded.");
-    }
-
-    return Ok();
-}
 
     }
 }
