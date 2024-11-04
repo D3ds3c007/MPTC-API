@@ -13,6 +13,7 @@ namespace MPTC_API.Models.DTO
         public IFormFile? Subject { get; set; }
         public IFormFile? Assetnote { get; set; }
         public string? DateExam { get; set; }
+        public int? StaffId { get; set; }
 
     }
 

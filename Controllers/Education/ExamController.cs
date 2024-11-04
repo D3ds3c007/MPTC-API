@@ -59,56 +59,55 @@ namespace MPTC_API.Controllers
         }
 
         [HttpPost("create-exam")]
-        public async Task<IActionResult> UploadExam([FromForm] ExamFormDTO examDTO)
+public async Task<IActionResult> UploadExam([FromForm] ExamFormDTO examformDTO)
+{
+    Console.WriteLine("Welcome to the ExamController");
+
+    // Get request header authorization
+    string token = Request.Headers["Authorization"];
+    Console.WriteLine($"token: {token}");
+
+    if (string.IsNullOrEmpty(token))
+    {
+        return Unauthorized("Authorization token is missing.");
+    }
+
+    if (examformDTO.Subject != null && examformDTO.Assetnote != null)
+    {
+        Console.WriteLine($"Received Asset Note File: {examformDTO.Assetnote.FileName}, Size: {examformDTO.Assetnote.Length}");
+        Console.WriteLine($"Received Subject File: {examformDTO.Subject.FileName}, Size: {examformDTO.Subject.Length}");
+
+        string assetnotePath = await ExamService.UploadPDFAsync(examformDTO.Assetnote);
+        string subjectPath = await ExamService.UploadPDFAsync(examformDTO.Subject);
+
+        DateTime dateExam;
+        if (!DateTime.TryParse(examformDTO.DateExam, out dateExam))
         {
-            Console.WriteLine("Welcome to the ExamController");
-
-            if (examDTO.Subject != null && examDTO.Assetnote != null)
-            {
-                Console.WriteLine($"Received Asset Note File: {examDTO.Assetnote.FileName}, Size: {examDTO.Assetnote.Length}");
-                Console.WriteLine($"Received Asset Note File: {examDTO.Assetnote.FileName}, Size: {examDTO.Assetnote.Length}");
-
-                
-
-            }else{
-                return BadRequest("No file uploaded.");
-            }
-
-
-
-            Exam exam = new Exam();
-
-            // Console.WriteLine("ExamDTO: " + JsonSerializer.Serialize(examDTO));
-            // // Validate the uploaded file
-            // if (file == null || file.Length == 0)
-            // {
-            //     return BadRequest("No file uploaded.");
-            // }
-
-            // if (!file.FileName.EndsWith(".pdf"))
-            // {
-            //     return BadRequest("Only PDF files are allowed.");
-            // }
-
-            // // Save the file as before
-            // var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), TempDirectory);
-            // if (!Directory.Exists(directoryPath))
-            // {
-            //     Directory.CreateDirectory(directoryPath);
-            // }
-
-            // var filePath = Path.Combine(directoryPath, Path.GetFileName(file.FileName));
-
-            // using (var stream = new FileStream(filePath, FileMode.Create))
-            // {
-            //     await file.CopyToAsync(stream);
-            // }
-
-            // Process otherData as needed
-            // Return the file path along with any other information
-            // return Ok(new { filePath, additionalData = otherData });
-
-            return Ok();
+            return BadRequest("Invalid exam date format.");
         }
+
+        Exam e = new Exam
+        {
+            PeriodId = (int)examformDTO.PeriodId,
+            Session = (int)examformDTO.Session,
+            SubjectId = (int)examformDTO.SubjectId,
+            LevelId = (int)examformDTO.LevelId,
+            Uripath = subjectPath,
+            UripathAssetNote = assetnotePath,
+            DateCreated = dateExam,
+            StaffId = (int)examformDTO.StaffId
+        };
+
+        ExamService.createExam(e, _context);
+    }
+    else
+    {
+        Console.WriteLine("No file upload");
+        return BadRequest("No file uploaded.");
+    }
+
+    return Ok();
+}
+
     }
 }

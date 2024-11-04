@@ -60,13 +60,16 @@ namespace MPTC_API.Services.Authentication
                     url = "http://localhost:3000/dashboard/professor";
                     break;
             }
+
+            Staff staff = member.Staff;
            //create
            var claims = new[]
            {
                 new Claim("id", member.IdMember.ToString()),
                 new Claim("email", member.Email),
                 new Claim("role", member.Staff.Privilege.PrivilegeName),
-                new Claim("url", url)
+                new Claim("url", url),
+                new Claim("idStaff", staff.IdStaff.ToString())
            };
 
            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Secret));

@@ -66,7 +66,7 @@ namespace MPTC_API.Services.Attendance
 
         public static async Task<string> UploadPDFAsync(IFormFile PDFfile)
         {
-            string destinationPath = "Temp/";
+            string destinationPath = "./Temp/";
 
             if (PDFfile == null || Path.GetExtension(PDFfile.FileName).ToLower() != ".pdf")
             {
