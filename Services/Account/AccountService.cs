@@ -62,20 +62,20 @@ namespace MPTC_API.Services.Authentication
             }
 
             Staff staff = member.Staff;
-           //create
-           var claims = new[]
-           {
+            //create
+            var claims = new[]
+            {
                 new Claim("id", member.IdMember.ToString()),
                 new Claim("email", member.Email),
                 new Claim("role", member.Staff.Privilege.PrivilegeName),
                 new Claim("url", url),
                 new Claim("idStaff", staff.IdStaff.ToString())
-           };
+            };
 
-           var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Secret));
-           var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Secret));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-           var token = new JwtSecurityToken(
+            var token = new JwtSecurityToken(
             issuer: null,
             audience: null,
             claims: claims,

@@ -11,7 +11,7 @@ using MPTC_API.Services;
 using static System.Text.Json.JsonElement;
 using MPTC_API.Models.DTO;
 using MPTC_API.Models.Education;
-
+using System.Security.Claims;
 
 
 namespace MPTC_API.Controllers
@@ -64,13 +64,26 @@ namespace MPTC_API.Controllers
             Console.WriteLine("Welcome to the ExamController");
 
             // Get request header authorization
-            // string token = Request.Headers["Authorization"];
-            // Console.WriteLine($"token: {token}");
+            string token = Request.Headers["Authorization"];
+            Console.WriteLine($"token: {token}");
 
-            // if (string.IsNullOrEmpty(token))
-            // {
-            //     return Unauthorized("Authorization token is missing.");
-            // }
+            ClaimsPrincipal claims = AccountService.GetClaimsPrincipalFromToken(token);
+            var idStaffClaim = claims.FindFirst("idStaff")?.Value;
+            Console.WriteLine("idStaffClaim");
+            Console.WriteLine(idStaffClaim);
+
+            // read the file from the request
+            var file = Request.Form.Files[0];
+
+            // Get request header authorization
+            // string Cookie = Request.Headers["Cookie"];
+            // Console.WriteLine($"Cookie: {Cookie}");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                Console.WriteLine("Authorization token is missing.");
+                return Unauthorized("Authorization token is missing.");
+            }
 
             if (examformDTO.Subject != null && examformDTO.Assetnote != null)
             {
@@ -85,7 +98,7 @@ namespace MPTC_API.Controllers
                 {
                     return BadRequest("Invalid exam date format.");
                 }
-
+ 
                 Exam e = new Exam
                 {
                     PeriodId = (int)examformDTO.PeriodId,
