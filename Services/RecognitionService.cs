@@ -197,7 +197,7 @@ namespace MPTC_API.Services
 
             int width = (int)(frame.Width * scale);
             int height = (int)(frame.Height * scale);
-            CvInvoke.Resize(frame, frame, new Size(width, height), 0, 0, Inter.Linear);
+            // CvInvoke.Resize(frame, frame, new Size(width, height), 0, 0, Inter.Linear);
             using (var resizedFrame = new Mat())
             {
                 CvInvoke.Resize(frame, resizedFrame, new Size(width, height), 0, 0, Inter.Linear);
@@ -264,12 +264,12 @@ namespace MPTC_API.Services
 
                     var detectionResult = Task.Run(() => predictor.DetectAsync(image)).Result;
                     detectionResult.Boxes.ToList().RemoveAll(box => box.Confidence < 0.5);
-                    detectionResult.Boxes.ToList().ForEach(box =>
-                    {
-                        var rect = new System.Drawing.Rectangle(box.Bounds.X, box.Bounds.Y, box.Bounds.Width, box.Bounds.Height);
-                        CvInvoke.Rectangle(frame, rect, new MCvScalar(0, 255, 0), 2);
-                        CvInvoke.PutText(frame, $"{box.Class.Name}({box.Confidence * 100}%)", new System.Drawing.Point(box.Bounds.X, box.Bounds.Y - 10), FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 1);
-                    });
+                    // detectionResult.Boxes.ToList().ForEach(box =>
+                    // {
+                    //     var rect = new System.Drawing.Rectangle(box.Bounds.X, box.Bounds.Y, box.Bounds.Width, box.Bounds.Height);
+                    //     CvInvoke.Rectangle(frame, rect, new MCvScalar(0, 255, 0), 2);
+                    //     CvInvoke.PutText(frame, $"{box.Class.Name}({box.Confidence * 100}%)", new System.Drawing.Point(box.Bounds.X, box.Bounds.Y - 10), FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 1);
+                    // });
                     OutputFrame = frame;
                 }
             }

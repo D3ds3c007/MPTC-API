@@ -103,7 +103,6 @@ ORDER BY
 
 
 -- Combination
-
 WITH months AS (
     SELECT 
         generate_series(
@@ -134,7 +133,7 @@ lateness AS (
     LEFT JOIN public."Schedules" s ON st."IdStaff" = s."StaffId"
         AND EXTRACT(DOW FROM a."Date") = s."DayOfWeek"
     WHERE 
-        m.month = DATE '2024-06-01'  -- Change this to the desired month
+        m.month = DATE '2024-11-01'  -- Change this to the desired month
     GROUP BY st."IdStaff", Year, Month, st."StaffName"
 ),
 -- Absence Count Subquery
@@ -151,8 +150,117 @@ absence AS (
         FROM public."Staffs" st
         CROSS JOIN (
             SELECT generate_series(
-                date_trunc('month', DATE '2024-06-01'), 
-                date_trunc('month', DATE '2024-06-01') + interval '1 month' - interval '1 day',
+                date_trunc('month', DATE '2024-11-01'), 
+                date_trunc('month', DATE '2024-11-01') + interval '1 month' - interval '1 day',
+                '1 day'
+            ) AS day
+        ) d
+        JOIN public."Schedules" s 
+            ON st."IdStaff" = s."StaffId" 
+            AND EXTRACT(DOW FROM d.day) = s."DayOfWeek"
+    ) wd
+    LEFT JOIN public."Attendances" a 
+        ON wd."IdStaff" = a."StaffId" 
+        AND wd.day = DATE(a."Date")
+    LEFT JOIN public."TimeOffs" t 
+        ON wd."IdStaff" = t."StaffId" 
+        AND wd.day BETWEEN t."BeginTimeOff" AND t."EndTimeOff"
+    GROUP BY wd."IdStaff", wd."StaffName"
+),
+-- On Time Count Subquery
+ontime AS (
+    SELECT 
+        st."IdStaff" AS "StaffId",
+        EXTRACT(YEAR FROM m.month) AS Year,
+        EXTRACT(MONTH FROM m.month) AS Month,
+        COUNT(CASE 
+            WHEN a."ClockInTime" IS NOT NULL 
+              AND (EXTRACT(HOUR FROM a."ClockInTime") * interval '1 hour' + 
+                   EXTRACT(MINUTE FROM a."ClockInTime") * interval '1 minute' <= s."Begin") 
+            THEN 1 
+            ELSE NULL 
+          END) AS OnTimeCount
+    FROM 
+        public."Staffs" st
+    CROSS JOIN months m
+    LEFT JOIN public."Attendances" a ON st."IdStaff" = a."StaffId"
+        AND DATE_TRUNC('month', a."Date") = DATE_TRUNC('month', m.month)
+    LEFT JOIN public."Schedules" s ON st."IdStaff" = s."StaffId"
+        AND EXTRACT(DOW FROM a."Date") = s."DayOfWeek"
+    WHERE 
+        m.month = DATE '2024-11-01'  -- Change this to the desired month
+    GROUP BY st."IdStaff", Year, Month
+)
+-- Combine Lateness, Absence, and On Time Counts with Punctuality Rating
+SELECT 
+    s."IdStaff" AS "StaffId",
+    s."StaffName",
+    s."Matricule",
+    COALESCE(l.Year, EXTRACT(YEAR FROM DATE '2024-11-01')) AS Year,
+    COALESCE(l.Month, EXTRACT(MONTH FROM DATE '2024-11-01')) AS Month,
+    COALESCE(l."latenesscount", 0) AS LatenessCount,
+    COALESCE(a."absencecount", 0) AS AbsenceCount,
+    COALESCE(ot."ontimecount", 0) AS OnTimeCount,
+    CASE 
+        WHEN COALESCE(l."latenesscount", 0) = 0 AND COALESCE(a."absencecount", 0) = 0 THEN 'Excellent'
+        WHEN COALESCE(l."latenesscount", 0) <= 2 AND COALESCE(a."absencecount", 0) <= 1 THEN 'Good'
+        WHEN COALESCE(l."latenesscount", 0) <= 4 AND COALESCE(a."absencecount", 0) <= 2 THEN 'Average'
+        WHEN COALESCE(l."latenesscount", 0) <= 6 AND COALESCE(a."absencecount", 0) <= 3 THEN 'Fair'
+        ELSE 'Poor'
+    END AS PunctualityRating
+FROM public."Staffs" s
+LEFT JOIN lateness l ON s."IdStaff" = l."StaffId"
+LEFT JOIN absence a ON s."IdStaff" = a."IdStaff"
+LEFT JOIN ontime ot ON s."IdStaff" = ot."StaffId"
+ORDER BY "StaffId";
+
+
+-- AVG lateness GLOBAL per Employee
+
+WITH lateness AS (
+    SELECT 
+        st."IdStaff" AS "StaffId",
+        EXTRACT(YEAR FROM a."Date") AS Year,
+        EXTRACT(MONTH FROM a."Date") AS Month,
+        st."StaffName",
+        COUNT(CASE 
+            WHEN a."ClockInTime" IS NOT NULL 
+            AND (EXTRACT(HOUR FROM a."ClockInTime") * interval '1 hour' + 
+                EXTRACT(MINUTE FROM a."ClockInTime") * interval '1 minute' > s."Begin") 
+            THEN 1 
+            ELSE NULL 
+        END) AS LatenessCount,
+        AVG(
+            CASE 
+                WHEN a."ClockInTime" IS NOT NULL 
+                AND (EXTRACT(HOUR FROM a."ClockInTime") * interval '1 hour' + 
+                     EXTRACT(MINUTE FROM a."ClockInTime") * interval '1 minute' > s."Begin") 
+                THEN EXTRACT(EPOCH FROM (a."ClockInTime" - (s."Begin"::time)))
+                ELSE NULL
+            END
+        ) / 60 AS AvgLatenessDurationMinutes -- Average lateness duration in minutes
+    FROM    
+        public."Staffs" st
+    LEFT JOIN public."Attendances" a ON st."IdStaff" = a."StaffId"
+    LEFT JOIN public."Schedules" s ON st."IdStaff" = s."StaffId"
+        AND EXTRACT(DOW FROM a."Date") = s."DayOfWeek"
+    GROUP BY st."IdStaff", Year, Month, st."StaffName"
+),
+absence AS (
+    SELECT 
+        wd."IdStaff", 
+        wd."StaffName", 
+        COUNT(CASE WHEN a."ClockInTime" IS NULL AND t."IdTimeOff" IS NULL THEN 1 END) AS AbsenceCount
+    FROM (
+        SELECT 
+            st."IdStaff", 
+            st."StaffName",
+            d.day
+        FROM public."Staffs" st
+        CROSS JOIN (
+            SELECT generate_series(
+                '2024-01-01'::date,  -- Start date of all data
+                CURRENT_DATE,  -- Current date
                 '1 day'
             ) AS day
         ) d
@@ -168,26 +276,26 @@ absence AS (
         AND wd.day BETWEEN t."BeginTimeOff" AND t."EndTimeOff"
     GROUP BY wd."IdStaff", wd."StaffName"
 )
--- Combine Lateness and Absence Counts with Punctuality Rating
 SELECT 
     s."IdStaff" AS "StaffId",
     s."StaffName",
-	s."Matricule",
-    COALESCE(l.Year, EXTRACT(YEAR FROM DATE '2024-06-01')) AS Year,
-    COALESCE(l.Month, EXTRACT(MONTH FROM DATE '2024-06-01')) AS Month,
-    COALESCE(l."latenesscount", 0) AS LatenessCount,
-    COALESCE(a."absencecount", 0) AS AbsenceCount,
-    CASE 
-        WHEN COALESCE(l."latenesscount", 0) = 0 AND COALESCE(a."absencecount", 0) = 0 THEN 'Excellent'
-        WHEN COALESCE(l."latenesscount", 0) <= 2 AND COALESCE(a."absencecount", 0) <= 1 THEN 'Good'
-        WHEN COALESCE(l."latenesscount", 0) <= 4 AND COALESCE(a."absencecount", 0) <= 2 THEN 'Average'
-        WHEN COALESCE(l."latenesscount", 0) <= 6 AND COALESCE(a."absencecount", 0) <= 3 THEN 'Fair'
-        ELSE 'Poor'
-    END AS PunctualityRating
+    l.Year,
+    l.Month,
+    COALESCE(l."avglatenessdurationminutes", 0) AS AvgLatenessDurationMinutes
 FROM public."Staffs" s
 LEFT JOIN lateness l ON s."IdStaff" = l."StaffId"
 LEFT JOIN absence a ON s."IdStaff" = a."IdStaff"
-ORDER BY "StaffId";
+ORDER BY l.Year DESC, l.Month DESC, AvgLatenessDurationMinutes DESC;
+
+-- AVG of Duration
+
+SELECT 
+    AVG(AvgLatenessDurationMinutes) AS AvgLatenessDurationMinutes
+FROM 
+public."v_LatenessDurationAvg" as v
+WHERE v.year = 2024 AND v.month = 11;
+
+
 
 
 

@@ -13,6 +13,7 @@ namespace MPTC_API.Models.DTO
         public int Month {get; set;}
         public int LatenessCount {get; set;}
         public int AbsenceCount {get; set;}
+        public int OnTimeCount {get; set;}
         public string PunctualityRating {get; set;}
 
 

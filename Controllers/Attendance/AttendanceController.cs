@@ -28,6 +28,20 @@ namespace MPTC_API.Controllers.Attendance
             _context = context;
         }
 
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStatsOfTheCurrentMonth()
+        {
+            int month = DateTime.Now.Month;
+
+            float punctualityRate = StatsService.GetPunctualityRate(month, _context);
+            float latenessDurationAVG = StatsService.GetLatenessDurationAVG(month, _context);
+            int totalStaff = _context.Staffs.Count();
+
+            return Ok(new {punctualityRate, latenessDurationAVG, totalStaff});
+
+            return Ok(punctualityRate);
+
+        }
         [HttpGet("leaderboard")]
         public async Task<IActionResult> GetLeaderboard([FromQuery] int month)
         {

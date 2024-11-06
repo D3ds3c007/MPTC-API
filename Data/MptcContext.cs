@@ -167,6 +167,8 @@ public partial class MptcContext : IdentityDbContext<Member>
             .HasNoKey();
         modelBuilder.Entity<LeaderboardDTO>()
             .HasNoKey();
+        modelBuilder.Entity<LatenessResult>()
+            .HasNoKey();
 
     }
 
@@ -239,5 +241,6 @@ public partial class MptcContext : IdentityDbContext<Member>
     public virtual DbSet<Nationality> Nationalitys { get; set; }
     public virtual DbSet<StaffScheduleDTO> StaffScheduleDTOs { get; set; }
     public virtual DbSet<LeaderboardDTO> LeaderboardDTOs { get; set; }
+    public virtual DbSet<LatenessResult> LatenessResult { get; set; }
 
 }
