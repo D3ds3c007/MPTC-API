@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using MPTC_API.Data;
 using MPTC_API.Models.Education;
 using MPTC_API.Models.DTO;
+using MPTC_API.Services.Authentication;
 
 namespace MPTC_API.Services.Attendance
 {
@@ -19,10 +20,10 @@ namespace MPTC_API.Services.Attendance
                 ExamDTO examDTO = new ExamDTO();
 
                 examDTO.IdExam = exam.IdExam;
-                examDTO.Period = exam.Period;
+                examDTO.Period = DataService.FormatDateRange(exam.Period.BeginDate, exam.Period.EndDate);
                 examDTO.Session = exam.Session;
-                examDTO.Subject = exam.Subject;
-                examDTO.Level = exam.Level;
+                examDTO.Subject = exam.Subject.SubjectName;
+                examDTO.Level = exam.Level.LevelName;
                 examDTO.Uripath = exam.Uripath;
                 examDTO.UripathAssetNote = exam.UripathAssetNote;
                 examDTO.DateExam = exam.DateCreated;
@@ -49,10 +50,10 @@ namespace MPTC_API.Services.Attendance
                 ExamDTO examDTO = new ExamDTO();
 
                 examDTO.IdExam = exam.IdExam;
-                examDTO.Period = exam.Period;
+                examDTO.Period = DataService.FormatDateRange(exam.Period.BeginDate, exam.Period.EndDate);
                 examDTO.Session = exam.Session;
-                examDTO.Subject = exam.Subject;
-                examDTO.Level = exam.Level;
+                examDTO.Subject = exam.Subject.SubjectName;
+                examDTO.Level = exam.Level.LevelName;
                 examDTO.Uripath = exam.Uripath;
                 examDTO.UripathAssetNote = exam.UripathAssetNote;
                 examDTO.DateExam = exam.DateCreated;

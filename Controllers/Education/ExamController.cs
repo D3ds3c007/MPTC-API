@@ -28,13 +28,14 @@ namespace MPTC_API.Controllers
 
 
 
-        public MptcContext _context = new MptcContext();
+        public MptcContext _context;
 
-        public ExamController(UserManager<Member> userManager, IEmailService emailService, RecognitionService recognitionService)
+        public ExamController(UserManager<Member> userManager, IEmailService emailService, RecognitionService recognitionService, MptcContext context)
         {
             _userManager = userManager;
             _emailService = emailService;
             _recognitionService = recognitionService;
+            _context = context;
         }
 
         [HttpGet("data")]
@@ -67,23 +68,23 @@ namespace MPTC_API.Controllers
             string token = Request.Headers["Authorization"];
             Console.WriteLine($"token: {token}");
 
-            ClaimsPrincipal claims = AccountService.GetClaimsPrincipalFromToken(token);
-            var idStaffClaim = claims.FindFirst("idStaff")?.Value;
-            Console.WriteLine("idStaffClaim");
-            Console.WriteLine(idStaffClaim);
+            // Check if token starts with "Bearer "
+            if (token.StartsWith("Bearer "))
+            {
+                token = token.Substring("Bearer ".Length).Trim();
+            }
+
+            ClaimsPrincipal principal = AccountService.GetClaimsPrincipalFromToken(token);
+
+            var idStaffClaim = principal.FindFirst("idStaff")?.Value;
+            Console.WriteLine($"idStaffClaim : {idStaffClaim}");
 
             // read the file from the request
-            var file = Request.Form.Files[0];
+            // var file = Request.Form.Files[0];
 
             // Get request header authorization
             // string Cookie = Request.Headers["Cookie"];
             // Console.WriteLine($"Cookie: {Cookie}");
-
-            if (string.IsNullOrEmpty(token))
-            {
-                Console.WriteLine("Authorization token is missing.");
-                return Unauthorized("Authorization token is missing.");
-            }
 
             if (examformDTO.Subject != null && examformDTO.Assetnote != null)
             {
@@ -93,12 +94,8 @@ namespace MPTC_API.Controllers
                 string assetnotePath = await ExamService.UploadPDFAsync(examformDTO.Assetnote);
                 string subjectPath = await ExamService.UploadPDFAsync(examformDTO.Subject);
 
-                DateTime dateExam;
-                if (!DateTime.TryParse(examformDTO.DateExam, out dateExam))
-                {
-                    return BadRequest("Invalid exam date format.");
-                }
- 
+                DateTime dateExam = DateTime.Parse(examformDTO.DateExam).ToUniversalTime();
+
                 Exam e = new Exam
                 {
                     PeriodId = (int)examformDTO.PeriodId,
@@ -108,8 +105,19 @@ namespace MPTC_API.Controllers
                     Uripath = subjectPath,
                     UripathAssetNote = assetnotePath,
                     DateCreated = dateExam,
-                    StaffId = (int)examformDTO.StaffId
+                    StaffId = int.Parse(idStaffClaim)
                 };
+
+                //print exam attributes
+                Console.WriteLine("Exam Details:");
+                Console.WriteLine($"PeriodId: {e.PeriodId}");
+                Console.WriteLine($"Session: {e.Session}");
+                Console.WriteLine($"SubjectId: {e.SubjectId}");
+                Console.WriteLine($"LevelId: {e.LevelId}");
+                Console.WriteLine($"Uripath: {e.Uripath}");
+                Console.WriteLine($"UripathAssetNote: {e.UripathAssetNote}");
+                Console.WriteLine($"DateCreated: {e.DateCreated}");
+                Console.WriteLine($"StaffId: {e.StaffId}");
 
                 ExamService.createExam(e, _context);
             }
