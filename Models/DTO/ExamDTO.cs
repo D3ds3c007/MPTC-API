@@ -7,7 +7,7 @@ namespace MPTC_API.Models.DTO
     {
         public int IdExam { get; set; }
         public string Period { get; set; }
-        public int Session { get; set; }
+        public string Session { get; set; }
         public string Subject { get; set; }
         public string Level { get; set; }
         public String Uripath { get; set; }

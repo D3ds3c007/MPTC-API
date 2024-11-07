@@ -53,8 +53,7 @@ namespace MPTC_API.Controllers
         [HttpGet("list")]
         public async Task<IActionResult> GetExams()
         {
-            List<Exam> exams = _context.Exams.ToList();
-            List<ExamDTO> examDTOs = ExamService.toExamDTO(exams);
+            List<ExamDTO> examDTOs = ExamService.listExams(_context);
 
             return Ok(examDTOs);
         }

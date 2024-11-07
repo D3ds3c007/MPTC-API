@@ -15,13 +15,14 @@ namespace MPTC_API.Services.Attendance
         {
             List<ExamDTO> examDTOs = new List<ExamDTO>();
             List<Exam> exams = context.Exams.ToList();
+            
             foreach (Exam exam in exams)
             {
                 ExamDTO examDTO = new ExamDTO();
 
                 examDTO.IdExam = exam.IdExam;
                 examDTO.Period = DataService.FormatDateRange(exam.Period.BeginDate, exam.Period.EndDate);
-                examDTO.Session = exam.Session;
+                examDTO.Session = ExamService.setSessionName(exam.Session);
                 examDTO.Subject = exam.Subject.SubjectName;
                 examDTO.Level = exam.Level.LevelName;
                 examDTO.Uripath = exam.Uripath;
@@ -32,6 +33,17 @@ namespace MPTC_API.Services.Attendance
                 examDTOs.Add(examDTO);
             }
             return examDTOs;
+        }
+
+        public static string setSessionName(int sessionNumber){
+            string[] sessionName = { "TERM1", "TERM2", "FINAL TERM" };
+            string sessionString = "";
+            for(int i=0; i<sessionName.Count(); i++){
+                if(i+1 == sessionNumber){
+                    sessionString = sessionName[i];
+                }
+            }
+            return sessionString;
         }
 
         public static void createExam(Exam exam, MptcContext _context)
@@ -41,29 +53,29 @@ namespace MPTC_API.Services.Attendance
             _context.SaveChangesAsync();
         }
 
-        public static List<ExamDTO> toExamDTO(List<Exam> exams)
-        {
-            List<ExamDTO> examDTOs = new List<ExamDTO>();
+        // public static List<ExamDTO> toExamDTO(List<Exam> exams)
+        // {
+        //     List<ExamDTO> examDTOs = new List<ExamDTO>();
 
-            foreach (Exam exam in exams)
-            {
-                ExamDTO examDTO = new ExamDTO();
+        //     foreach (Exam exam in exams)
+        //     {
+        //         ExamDTO examDTO = new ExamDTO();
 
-                examDTO.IdExam = exam.IdExam;
-                examDTO.Period = DataService.FormatDateRange(exam.Period.BeginDate, exam.Period.EndDate);
-                examDTO.Session = exam.Session;
-                examDTO.Subject = exam.Subject.SubjectName;
-                examDTO.Level = exam.Level.LevelName;
-                examDTO.Uripath = exam.Uripath;
-                examDTO.UripathAssetNote = exam.UripathAssetNote;
-                examDTO.DateExam = exam.DateCreated;
-                examDTO.StaffId = exam.StaffId;
+        //         examDTO.IdExam = exam.IdExam;
+        //         examDTO.Period = DataService.FormatDateRange(exam.Period.BeginDate, exam.Period.EndDate);
+        //         examDTO.Session = exam.Session;
+        //         examDTO.Subject = exam.Subject.SubjectName;
+        //         examDTO.Level = exam.Level.LevelName;
+        //         examDTO.Uripath = exam.Uripath;
+        //         examDTO.UripathAssetNote = exam.UripathAssetNote;
+        //         examDTO.DateExam = exam.DateCreated;
+        //         examDTO.StaffId = exam.StaffId;
 
-                examDTOs.Add(examDTO);
-            }
+        //         examDTOs.Add(examDTO);
+        //     }
 
-            return examDTOs;
-        }
+        //     return examDTOs;
+        // }
 
         public static async Task<string> UploadPDFAsync(IFormFile PDFfile)
         {
