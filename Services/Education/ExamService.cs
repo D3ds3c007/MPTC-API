@@ -111,6 +111,39 @@ namespace MPTC_API.Services.Attendance
             return pdfFilePath;
         }
 
+        // public static async Task<string> UploadZipFile(IFormFile zipFile){
+            // string destinationPath = "./Temp/";
+
+            // if (PDFfile == null || Path.GetExtension(PDFfile.FileName).ToLower() != ".pdf")
+            // {
+            //     return "Invalid file. Only PDF files are allowed.";
+            // }
+
+            // // Ensure the destination directory exists
+            // if (!Directory.Exists(destinationPath))
+            // {
+            //     Directory.CreateDirectory(destinationPath);
+            // }
+
+            // // Full path where the uploaded PDF file will be saved
+            // var pdfFilePath = Path.Combine(destinationPath, PDFfile.FileName);
+
+            // // Save the PDF file to the destination directory
+            // try
+            // {
+            //     using (var fileStream = new FileStream(pdfFilePath, FileMode.Create))
+            //     {
+            //         await PDFfile.CopyToAsync(fileStream);
+            //     }
+            // }
+            // catch (Exception ex)
+            // {
+            //     return $"Error while saving the file: {ex.Message}";
+            // }
+
+            // return pdfFilePath;
+        // }
+
     }
 
 }
