@@ -39,7 +39,6 @@ namespace MPTC_API.Controllers.Attendance
 
             return Ok(new {punctualityRate, latenessDurationAVG, totalStaff});
 
-            return Ok(punctualityRate);
 
         }
         [HttpGet("leaderboard")]
@@ -54,6 +53,23 @@ namespace MPTC_API.Controllers.Attendance
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("activity-logs")]
+
+        public async Task<IActionResult> GetActivityLogs([FromQuery] DateTime? date)
+        {
+            try
+            {
+                DateTime logDate = date ?? DateTime.UtcNow;
+                List<ActivityLogDTO> activityLogs = await AttendanceService.GetActivityLogsAsync(logDate, _context);
+                return Ok(activityLogs);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+     
        
 
         [HttpGet("records")]

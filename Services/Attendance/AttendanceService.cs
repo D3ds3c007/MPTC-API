@@ -5,6 +5,7 @@ using MPTC_API.Hub;
 using MPTC_API.Migrations;
 using MPTC_API.Models.Attendance;
 using MPTC_API.Models.Attendance.MemberDTO;
+using MPTC_API.Models.DTO;
 using MPTC_API.Models.StaffDTO;
 using Npgsql;
 
@@ -306,6 +307,24 @@ namespace MPTC_API.Services.Attendance
 
  
             return result;
+        }
+
+        public static async Task<List<ActivityLogDTO>> GetActivityLogsAsync(DateTime? date, MptcContext _context)
+        {
+
+            //if the date is null, set it to the current date
+            if(date == null) date = DateTime.UtcNow;
+            var dateString = date.Value.ToString("yyyy-MM-dd");
+             var query = $@"
+                SELECT * FROM public.""v_Logs"" AS l WHERE l.year = {DateTime.UtcNow.Year} AND l.""EventTime""::DATE = '{dateString}';
+            ";
+
+            var result = _context.Set<ActivityLogDTO>()
+                                .FromSqlRaw(query)
+                                .AsEnumerable()
+                                .ToList(); 
+
+            return result; 
         }
 
        

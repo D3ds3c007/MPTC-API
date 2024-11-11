@@ -296,6 +296,16 @@ public."v_LatenessDurationAvg" as v
 WHERE v.year = 2024 AND v.month = 11;
 
 
+-- List Of activity Logs view
+SELECT
+    s."Matricule",
+    CONCAT(s."StaffName", ' ', s."FirstName") as FirstName, 
+    l."EventType",
+    EXTRACT(YEAR FROM l."EventTime") AS Year,
+    EXTRACT(MONTH FROM l."EventTime") AS Month,
+
+    l."EventTime" FROM public."Logss" l
+LEFT JOIN public."Staffs" s ON s."IdStaff" = l."StaffId"
 
 
 
