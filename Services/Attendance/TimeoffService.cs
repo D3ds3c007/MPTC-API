@@ -19,6 +19,29 @@ namespace MPTC_API.Services.Attendance
             
         }
 
+        public static List<TimeOffDTO> getAllTimeOff(MptcContext _context)
+        {
+            List<TimeOff> timeOffs = _context.TimeOffs.ToList();
+            List<TimeOffDTO> timeoffDTO = new List<TimeOffDTO>();
+
+            foreach(TimeOff timeOff in timeOffs)
+            {
+
+                timeoffDTO.Add(new TimeOffDTO(){
+                    IdTimeOff = timeOff.IdTimeOff,
+                    employeeName = timeOff.Staff.FirstName + " " + timeOff.Staff.StaffName,
+                    StaffMatricule = timeOff.Staff.Matricule,
+                    BeginTimeOff = timeOff.BeginTimeOff,
+                    EndTimeOff = timeOff.EndTimeOff
+                });
+
+            }
+
+            return timeoffDTO;
+        }
+
+
+
         
 
         

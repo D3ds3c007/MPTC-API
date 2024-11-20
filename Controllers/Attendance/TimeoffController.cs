@@ -40,16 +40,29 @@ namespace MPTC_API.Controllers.Attendance
                     EndTimeOff = timeoffDTO.EndTimeOff.ToUniversalTime()
                 };
                 TimeoffService.addTimeoff(timeoff, _context);
+                //return ok with success message
+
+                return Ok("Your time-off request has been successfully submitted! We’ll notify you once it’s reviewed. Thank you!");
 
             }catch(Exception ex)
             {
                 Console.WriteLine(ex.InnerException);
+                return BadRequest(ex.Message);
             }
-            
-
-    
-            return Ok();
         } 
+        
+        [HttpGet("timeoffs")]
+
+        public async Task<IActionResult> getAllTimeOff()
+        {
+            try{
+                List<TimeOffDTO> timeoffDTO = TimeoffService.getAllTimeOff(_context);
+                return Ok(timeoffDTO);
+            }catch(Exception e){
+                return BadRequest(e.Message);
+            }
+        }
+
         
 
      
