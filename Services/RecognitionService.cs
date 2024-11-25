@@ -50,7 +50,7 @@ namespace MPTC_API.Services
 
             var ShapePredictorPath = Path.Combine(Directory.GetCurrentDirectory(), "Utils/Recognition/shape_predictor_68_face_landmarks.dat");
             var faceRecognitionModelPath = Path.Combine(Directory.GetCurrentDirectory(), "Utils/Recognition/dlib_face_recognition_resnet_model_v1.dat");
-            _net = DlibDotNet.Dnn.LossMetric.Deserialize(faceRecognitionModelPath);
+            _net = LossMetric.Deserialize(faceRecognitionModelPath);
             _shapePredictor = ShapePredictor.Deserialize(ShapePredictorPath);
             LoadKnownFaces();
             // Constructor logic here

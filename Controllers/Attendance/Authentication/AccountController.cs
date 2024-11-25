@@ -43,7 +43,7 @@ namespace MPTC_API.Controllers
             member.NormalizedEmail = MemberDTO.Email.ToUpper();
             member.Password = BCrypt.Net.BCrypt.HashPassword(MemberDTO.Password);
             member.LastModified = DateTime.Now.ToUniversalTime();
-            member.StaffId = 58;
+            member.StaffId = 60;
             
             IdentityResult result = await _userManager.CreateAsync(member, MemberDTO.Password);
             return Ok(result);
