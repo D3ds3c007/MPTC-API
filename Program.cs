@@ -126,8 +126,8 @@ public class CameraStreamingService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // Automatically start streaming when the service starts
-        Task.Run( () => _clockInController.Index());
-        Task.Run( () => _clockOutController.Index());
+        // Task.Run( () => _clockInController.Index());
+        // Task.Run( () => _clockOutController.Index());
     }
 }
 

@@ -410,6 +410,8 @@ namespace MPTC_API.Services
                         //Beep each time a face is recognized
                         distance = distCalculated;
                         result = name.ToString();
+
+                        Console.WriteLine(result);
                     }
 
                 }

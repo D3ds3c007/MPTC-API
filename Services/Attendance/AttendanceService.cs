@@ -154,24 +154,25 @@ namespace MPTC_API.Services.Attendance
             //parse date to the format (yyyy-MM-dd)
             string dateStr = date.ToString("yyyy-MM-dd");
 
+            Console.WriteLine("Date is : " + dateStr);
             var result = await _context.StaffScheduleDTOs
-            .FromSqlRaw(@"
+            .FromSqlRaw(@$"
                     SELECT
                         st.""IdStaff"",
-                        st.""Matricule"",
+                        st.""Matricule"", 
                         st.""StaffName"",
                         s.""DayOfWeek"",
-                        DATE '2024-10-24' AS ""Date""
+                        DATE '{dateStr}' AS ""Date""
                     FROM public.""Staffs"" st
                     JOIN public.""Schedules"" s 
                         ON st.""IdStaff"" = s.""StaffId""
-                        AND s.""DayOfWeek"" = EXTRACT(DOW FROM DATE '2024-10-15')
+                        AND s.""DayOfWeek"" = EXTRACT(DOW FROM DATE '{dateStr}')
                     LEFT JOIN public.""Attendances"" a 
                         ON st.""IdStaff"" = a.""StaffId"" 
-                        AND DATE(a.""Date"") = DATE '2024-10-24'
+                        AND DATE(a.""Date"") = DATE '{dateStr}'
                     LEFT JOIN public.""TimeOffs"" t 
                         ON st.""IdStaff"" = t.""StaffId"" 
-                        AND DATE '2024-10-24' BETWEEN t.""BeginTimeOff"" AND t.""EndTimeOff""
+                        AND DATE '{dateStr}' BETWEEN t.""BeginTimeOff"" AND t.""EndTimeOff""
                     WHERE 
                         a.""IdAttendance"" IS NULL
                         AND t.""IdTimeOff"" IS NULL
