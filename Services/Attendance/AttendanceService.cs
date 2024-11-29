@@ -306,7 +306,13 @@ namespace MPTC_API.Services.Attendance
             ", new NpgsqlParameter("@Date", targetDate)).ToListAsync();
 
 
- 
+            //remove from result where lateness is 0 and punnctuality 0 and readjust the rank
+            result = result.Where(r => r.LatenessCount != 0 || r.AbsenceCount != 0).ToList();
+            for (int i = 0; i < result.Count; i++)
+            {
+                result[i].Rank = i + 1;
+            }
+            
             return result;
         }
 

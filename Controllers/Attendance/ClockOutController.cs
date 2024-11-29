@@ -36,7 +36,7 @@ namespace MPTC_API.Controllers.Attendance
         public async Task<IActionResult> Index()
         {
             Console.WriteLine("Start clock out");
-            var capture = new VideoCapture(1);
+            var capture = new VideoCapture(2);
             if (!capture.IsOpened)
             {
                 Console.WriteLine("Failed to open camera.");
