@@ -111,6 +111,47 @@ namespace MPTC_API.Services.Attendance
             return pdfFilePath;
         }
 
+        public static void updateExam(Exam exam, MptcContext _context){
+       
+            Exam existingExam = _context.Exams.Find(exam.IdExam);
+            if (existingExam == null)
+            {
+                throw new InvalidOperationException("Exam does not exist");
+            }
+
+            // Update properties of the existing exam
+            existingExam.PeriodId = exam.PeriodId;
+            existingExam.Session = exam.Session;
+            existingExam.SubjectId = exam.SubjectId;
+            existingExam.LevelId = exam.LevelId;
+            existingExam.SubjectId = exam.SubjectId;
+            existingExam.UripathAssetNote = exam.UripathAssetNote;
+            existingExam.Uripath = exam.Uripath;
+            existingExam.DateCreated = exam.DateCreated;
+            existingExam.StaffId = exam.StaffId;
+            // Add other properties to update as needed
+
+            // Save changes to the database
+            _context.SaveChanges();
+
+        }
+
+        public static void deleteExam(int idExam, MptcContext _context){
+            var exam = _context.Exams.Find(idExam);
+
+            if (exam == null)
+            {
+                //trows exception
+                throw new InvalidOperationException("Exam does not exist");
+            }
+
+            // Remove the exam from the database
+            _context.Exams.Remove(exam);
+
+            // Save changes to the database
+            _context.SaveChanges();
+        }
+
         // public static async Task<string> UploadZipFile(IFormFile zipFile){
             // string destinationPath = "./Temp/";
 
