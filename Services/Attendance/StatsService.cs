@@ -55,7 +55,7 @@ namespace MPTC_API.Services.Attendance
                     AVG(AvgLatenessDurationMinutes) AS AvgLatenessDurationMinutes
                 FROM 
                     public.""v_LatenessDurationAvg"" AS v
-                WHERE v.year = {year};
+                WHERE v.year = {year} AND v.month = {month};
             ";
 
             // Execute the query and retrieve the result as a dynamic object
