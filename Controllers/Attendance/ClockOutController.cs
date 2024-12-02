@@ -1,16 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MPTC_API.Data;
-using MPTC_API.Models.Attendance;
-using MPTC_API.Services.Authentication;
-using Microsoft.AspNetCore.Identity;
-using MPTC_API.Models.Attendance.MemberDTO;
-using System.Text.Json;
-using EllipticCurve.Utils;
-using MPTC_API.Services.Attendance;
 using MPTC_API.Services;
-using static System.Text.Json.JsonElement;
-using MPTC_API.Models.StaffDTO;
-using System.Text.RegularExpressions;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 

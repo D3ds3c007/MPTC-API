@@ -176,6 +176,7 @@ namespace MPTC_API.Services.Attendance
                     WHERE 
                         a.""IdAttendance"" IS NULL
                         AND t.""IdTimeOff"" IS NULL
+                        AND DATE '{dateStr}' <= CURRENT_DATE
                     ORDER BY 
                         st.""IdStaff""")
                 .ToListAsync();
@@ -183,7 +184,7 @@ namespace MPTC_API.Services.Attendance
             return result;
         }
 
-        public static async  Task<List<Models.DTO.LeaderboardDTO>>  GetLeaderboardAsync(int month, MptcContext _context)
+        public static async Task<List<Models.DTO.LeaderboardDTO>> GetLeaderboardAsync(int month, MptcContext _context)
         {
             var targetDate = new DateTime(DateTime.Now.Year, month, 1);
             var result = await _context.LeaderboardDTOs
@@ -247,6 +248,7 @@ namespace MPTC_API.Services.Attendance
                     LEFT JOIN public.""TimeOffs"" t 
                         ON wd.""IdStaff"" = t.""StaffId"" 
                         AND wd.day BETWEEN t.""BeginTimeOff"" AND t.""EndTimeOff""
+                    WHERE wd.day <= CURRENT_DATE
                     GROUP BY wd.""IdStaff"", wd.""StaffName""
                 ),
                 ontime AS (
@@ -304,8 +306,7 @@ namespace MPTC_API.Services.Attendance
                 LEFT JOIN ontime ot ON s.""IdStaff"" = ot.""StaffId""
                 ORDER BY rank;
             ", new NpgsqlParameter("@Date", targetDate)).ToListAsync();
-
-
+    
             //remove from result where lateness is 0 and punnctuality 0 and readjust the rank
             result = result.Where(r => r.LatenessCount != 0 || r.AbsenceCount != 0).ToList();
             for (int i = 0; i < result.Count; i++)
