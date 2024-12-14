@@ -187,6 +187,14 @@ namespace MPTC_API.Services.Attendance
         public static async Task<List<Models.DTO.LeaderboardDTO>> GetLeaderboardAsync(int month, MptcContext _context)
         {
             var targetDate = new DateTime(DateTime.Now.Year, month, 1);
+            string limitOfDateSeries = DateTime.Now.ToString("yyyy-MM-dd");
+            if(targetDate.Month < DateTime.Now.Month)
+            {
+               //set the limit of date series to the last day of the month
+                limitOfDateSeries = new DateTime(DateTime.Now.Year, month, DateTime.DaysInMonth(DateTime.Now.Year, month)).ToString("yyyy-MM-dd");
+            }
+
+            Console.WriteLine($"Limit of date series: {limitOfDateSeries}");
             var result = await _context.LeaderboardDTOs
                 .FromSqlRaw(@"
                     WITH months AS (
@@ -233,7 +241,7 @@ namespace MPTC_API.Services.Attendance
                             CROSS JOIN (
                                 SELECT generate_series(
                                     date_trunc('month', @Date), 
-                                    date_trunc('month', @Date) + interval '1 month' - interval '1 day',
+                                    @LimitOfDateSeries::DATE,
                                     '1 day'
                                 ) AS day
                             ) d
@@ -304,7 +312,8 @@ namespace MPTC_API.Services.Attendance
                     LEFT JOIN absence a ON s.""IdStaff"" = a.""IdStaff""
                     LEFT JOIN ontime ot ON s.""IdStaff"" = ot.""StaffId""
                     ORDER BY rank;
-                ", new NpgsqlParameter("@Date", targetDate)).ToListAsync();
+                ", new NpgsqlParameter("@Date", targetDate),
+                new NpgsqlParameter("@LimitOfDateSeries", limitOfDateSeries)).ToListAsync();
 
     
             //remove from result where lateness is 0 and punnctuality 0 and readjust the rank
