@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Net.WebSockets;
@@ -28,7 +29,7 @@ namespace MPTC_API.Services
         private static ShapePredictor _shapePredictor;
         private static LossMetric _net;
 
-        private static readonly Dictionary<int, float[]> _knownFaceEmbeddings = new Dictionary<int, float[]>();
+        private static readonly Dictionary<int, List<float[]>> _knownFaceEmbeddings = new Dictionary<int, List<float[]>>();
         private Dictionary<DlibDotNet.Rectangle, string> _recognizedNames = new Dictionary<DlibDotNet.Rectangle, string>();
         RTSPStreamer rtspStreamer = new RTSPStreamer();
         private readonly IHubContext<AttendanceHub> _hubContext;
@@ -64,7 +65,12 @@ namespace MPTC_API.Services
             foreach (var employeeImage in employeeImages)
             {
                 Console.WriteLine($"Employee ID: {employeeImage.IdStaff} and Staff Name : {employeeImage.StaffName}");
-                _knownFaceEmbeddings.Add(employeeImage.IdStaff, employeeImage.Descriptor);
+
+                if(!_knownFaceEmbeddings.ContainsKey(employeeImage.IdStaff))
+                {
+                    _knownFaceEmbeddings[employeeImage.IdStaff] = new List<float[]>();
+                }
+                _knownFaceEmbeddings[employeeImage.IdStaff].Add(employeeImage.Descriptor);
             }
             // var directory = Path.Combine(Directory.GetCurrentDirectory(), "Data", "KnownFaces");
             // string[] knownNames = { "Joe", "Kamala", "Nantenaina", "Obama1", "Obama2", "Princy Robinson", "Donald Trump" };
@@ -146,7 +152,7 @@ namespace MPTC_API.Services
                                                     true,                                    // End the message (this will send a complete message)
                                                     CancellationToken.None                  // No cancellation token here
                                                 );
-                                                    Console.WriteLine("Sent frame In to client");
+                                                    // Console.WriteLine("Sent frame In to client");
                                                 }
                                                 else
                                                 {
@@ -177,7 +183,7 @@ namespace MPTC_API.Services
                                 }
                                 catch (Exception e)
                                 {
-                                    Console.WriteLine($"Error processing frame: {e.Message}");
+                                    //Console.WriteLine($"Error processing frame: {e.Message}");
                                     break;
                                 }
 
@@ -387,37 +393,77 @@ namespace MPTC_API.Services
 
         private async Task RecognizeFaceAsync(List<float[]> faceDescriptors, Compunet.YoloV8.Data.BoundingBox[] faces, bool isClockIn, MptcContext _context)
         {
-            double threshold = 0.5;
+            double threshold = 0.6;
             double distance = double.MaxValue;
             string result = "Unknown";
+            Dictionary<int, float> occurrences = new Dictionary<int, float>();
             double distanceUknown = 0.0;
             int i = 0;
+            int j =0;
             // Compare the face descriptor with known embeddings
             foreach (var faceDescriptor in faceDescriptors)
             {
                 // Compare the face descriptor with known embeddings
                 foreach (var kvp in _knownFaceEmbeddings)
                 {
+                    j=0;
                     int name = kvp.Key;
-                    var knownEmbedding = kvp.Value;
+                    var listOfEmbeddings = kvp.Value;
 
-                    // Compute the distance (e.g., Euclidean distance) between the embeddings
-                    var distCalculated = CalculateEuclideanDistance(faceDescriptor, knownEmbedding);
-                    distanceUknown = distCalculated;
-                    // Set a threshold for recognition
-                    if (distCalculated <= threshold && distCalculated <= distance) // Adjust threshold based on testing
+                    foreach (var knownEmbedding in listOfEmbeddings)
                     {
-                        //Beep each time a face is recognized
-                        distance = distCalculated;
-                        result = name.ToString();
 
-                        Console.WriteLine(result);
+                        // Compute the distance (e.g., Euclidean distance) between the embeddings
+                        var distCalculated = CalculateEuclideanDistance(faceDescriptor, knownEmbedding);
+                        distanceUknown = distCalculated;
+                        Console.WriteLine($"Actual ID: {name} and Distance: {distCalculated}");
+                        
+                        // // Set a threshold for recognition
+                        // if (distCalculated <= threshold) // Adjust threshold based on testing
+                        // {
+                            //Beep each time a face is recognized
+                            // distance = distCalculated;
+                            // result = name.ToString();
+                            
+
+                            if(!occurrences.ContainsKey(name))
+                            {
+                                occurrences[name] = 0;
+                            }
+                            occurrences[name] += (float) distCalculated;
+                            j++;
+
+                            Console.WriteLine(result);
+                        // }
+                        
                     }
 
+                    if(j > 0)
+                        occurrences[name] = occurrences[name] / j;
+
                 }
+
+                //return the name with the highest occurence
+                if(occurrences.Count > 0)
+                {
+                    var min = occurrences.Values.Min();
+                    var key = occurrences.FirstOrDefault(x => x.Value == min && x.Value  <= threshold).Key;
+                    //check if key is not 0, if 0 result is unknown. Use ternary operator
+                    result = key != 0 ? key.ToString() : "Unknown";
+                }
+                
+
+
                 _recognizedNames[ConvertBoundingBoxToDlibRect(faces[i])] = result;
                 i++;
 
+            }
+
+            //show data inside occurrences
+            Console.WriteLine("Occurrences Size : " + occurrences.Count);
+            foreach(var occurence in occurrences)
+            {
+                Console.WriteLine($"Key: {occurence.Key} and Value: {occurence.Value}");
             }
             //Console.WriteLine($"Distance Unknown: {distanceUknown}");
             if (result != "Unknown")

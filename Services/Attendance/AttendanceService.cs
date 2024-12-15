@@ -184,7 +184,7 @@ namespace MPTC_API.Services.Attendance
             return result;
         }
 
-        public static async Task<List<Models.DTO.LeaderboardDTO>> GetLeaderboardAsync(int month, MptcContext _context)
+        public static async Task<List<Models.DTO.LeaderboardDTO>> GetLeaderboardAsync(int month, MptcContext _context, RecognitionService _recognitionService=null)
         {
             var targetDate = new DateTime(DateTime.Now.Year, month, 1);
             string limitOfDateSeries = DateTime.Now.ToString("yyyy-MM-dd");
@@ -306,7 +306,9 @@ namespace MPTC_API.Services.Attendance
                             WHEN COALESCE(l.""latenesscount"", 0) <= 4 AND COALESCE(a.""absencecount"", 0) <= 2 THEN 'Average'
                             WHEN COALESCE(l.""latenesscount"", 0) <= 6 AND COALESCE(a.""absencecount"", 0) <= 3 THEN 'Fair'
                             ELSE 'Poor'
-                        END AS PunctualityRating
+                        END AS PunctualityRating,
+                        NULL AS ""Image64"" -- Add this column with a default value of NULL
+
                     FROM public.""Staffs"" s
                     LEFT JOIN lateness l ON s.""IdStaff"" = l.""StaffId""
                     LEFT JOIN absence a ON s.""IdStaff"" = a.""IdStaff""
@@ -315,9 +317,20 @@ namespace MPTC_API.Services.Attendance
                 ", new NpgsqlParameter("@Date", targetDate),
                 new NpgsqlParameter("@LimitOfDateSeries", limitOfDateSeries)).ToListAsync();
 
-    
+            
+
+            //if recognition service is not null, get the image of the staff and add it to the result
+            if(_recognitionService != null)
+            {
+                foreach (var staff in result)
+                {
+                    var pictures = _recognitionService.GetEmployeeImage(staff.StaffId);
+                    List<EmployeeImage> employeeImage = pictures.Result.ToList();
+                    staff.image64 = employeeImage.Count > 0 ? employeeImage[0].Base64Image : null;
+                }
+            }
             //remove from result where lateness is 0 and punnctuality 0 and readjust the rank
-            result = result.Where(r => r.LatenessCount != 0 || r.AbsenceCount != 0).ToList();
+            // result = result.Where(r => r.LatenessCount != 0 || r.AbsenceCount != 0).ToList();
             for (int i = 0; i < result.Count; i++)
             {
                 result[i].Rank = i + 1;

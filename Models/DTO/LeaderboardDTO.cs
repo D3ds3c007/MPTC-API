@@ -9,6 +9,7 @@ namespace MPTC_API.Models.DTO
         public int StaffId {get; set;}
         public string StaffName {get; set;}
         public string Matricule {get; set;}
+        public string? image64 {get; set;}
         public int Year {get; set;}
         public int Month {get; set;}
         public int LatenessCount {get; set;}

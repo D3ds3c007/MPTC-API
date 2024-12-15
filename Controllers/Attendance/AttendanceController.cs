@@ -47,7 +47,7 @@ namespace MPTC_API.Controllers.Attendance
             try{
                 if (month == 0) month = DateTime.Now.Month;
                 Console.WriteLine("Month: " + month);
-                IEnumerable<LeaderboardDTO> leaderboard = await AttendanceService.GetLeaderboardAsync(month, _context);
+                IEnumerable<LeaderboardDTO> leaderboard = await AttendanceService.GetLeaderboardAsync(month, _context, _recognitionService);
                 return Ok(leaderboard);
             }catch(Exception e){
                 return BadRequest(e.Message);
