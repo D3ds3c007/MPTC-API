@@ -58,6 +58,13 @@ namespace MPTC_API.Controllers
             return Ok(examDTOs);
         }
 
+        [HttpGet("get-exam/{examId}")]
+        public async Task<IActionResult> GetExam(int examId)
+        {
+            ExamUpdateDTO exam = ExamService.getExamInfo(examId, _context);
+            return Ok(exam);
+        }
+
         [HttpPost("create-exam")]
         public async Task<IActionResult> UploadExam([FromForm] ExamFormDTO examformDTO)
         {
@@ -108,15 +115,15 @@ namespace MPTC_API.Controllers
                 };
 
                 //print exam attributes
-                Console.WriteLine("Exam Details:");
-                Console.WriteLine($"PeriodId: {e.PeriodId}");
-                Console.WriteLine($"Session: {e.Session}");
-                Console.WriteLine($"SubjectId: {e.SubjectId}");
-                Console.WriteLine($"LevelId: {e.LevelId}");
-                Console.WriteLine($"Uripath: {e.Uripath}");
-                Console.WriteLine($"UripathAssetNote: {e.UripathAssetNote}");
-                Console.WriteLine($"DateCreated: {e.DateCreated}");
-                Console.WriteLine($"StaffId: {e.StaffId}");
+                // Console.WriteLine("Exam Details:");
+                // Console.WriteLine($"PeriodId: {e.PeriodId}");
+                // Console.WriteLine($"Session: {e.Session}");
+                // Console.WriteLine($"SubjectId: {e.SubjectId}");
+                // Console.WriteLine($"LevelId: {e.LevelId}");
+                // Console.WriteLine($"Uripath: {e.Uripath}");
+                // Console.WriteLine($"UripathAssetNote: {e.UripathAssetNote}");
+                // Console.WriteLine($"DateCreated: {e.DateCreated}");
+                // Console.WriteLine($"StaffId: {e.StaffId}");
 
                 ExamService.createExam(e, _context);
             }
@@ -125,6 +132,43 @@ namespace MPTC_API.Controllers
                 Console.WriteLine("No file upload");
                 return BadRequest("No file uploaded.");
             }
+
+            return Ok();
+        }
+
+        [HttpPut("update-exam")]
+        public async Task<IActionResult> UpdateExam([FromForm] ExamModifyDTO examModifyDTO){
+            Console.WriteLine("Welcome to the ExamController");
+
+            DateTime dateExam = DateTime.Parse(examModifyDTO.DateExam).ToUniversalTime();
+
+            Exam e = new Exam
+            {
+                IdExam = (int)examModifyDTO.IdExam,
+                PeriodId = (int)examModifyDTO.PeriodId,
+                Session = (int)examModifyDTO.Session,
+                SubjectId = (int)examModifyDTO.SubjectId,
+                LevelId = (int)examModifyDTO.LevelId,
+                DateCreated = dateExam,
+            };
+
+            Console.WriteLine("Exam Details:");
+            Console.WriteLine($"PeriodId: {e.PeriodId}");
+            Console.WriteLine($"Session: {e.Session}");
+            Console.WriteLine($"SubjectId: {e.SubjectId}");
+            Console.WriteLine($"LevelId: {e.LevelId}");
+            Console.WriteLine($"DateCreated: {e.DateCreated}");
+
+            ExamService.updateExam(e, _context);
+
+            return Ok();
+        }
+
+        [HttpDelete("delete-exam/{examId}")]
+        public async Task<IActionResult> DeleteExam(int examId){
+            Console.WriteLine("Welcome to the ExamController");
+
+            ExamService.deleteExam(examId, _context);
 
             return Ok();
         }

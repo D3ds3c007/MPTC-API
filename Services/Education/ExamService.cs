@@ -18,18 +18,7 @@ namespace MPTC_API.Services.Attendance
             
             foreach (Exam exam in exams)
             {
-                ExamDTO examDTO = new ExamDTO();
-
-                examDTO.IdExam = exam.IdExam;
-                examDTO.Period = DataService.FormatDateRange(exam.Period.BeginDate, exam.Period.EndDate);
-                examDTO.Session = ExamService.setSessionName(exam.Session);
-                examDTO.Subject = exam.Subject.SubjectName;
-                examDTO.Level = exam.Level.LevelName;
-                examDTO.Uripath = exam.Uripath;
-                examDTO.UripathAssetNote = exam.UripathAssetNote;
-                examDTO.DateExam = exam.DateCreated;
-                examDTO.StaffId = exam.StaffId;
-
+                ExamDTO examDTO = ExamService.toExamDTO(exam);
                 examDTOs.Add(examDTO);
             }
             return examDTOs;
@@ -53,29 +42,45 @@ namespace MPTC_API.Services.Attendance
             _context.SaveChangesAsync();
         }
 
-        // public static List<ExamDTO> toExamDTO(List<Exam> exams)
-        // {
-        //     List<ExamDTO> examDTOs = new List<ExamDTO>();
+        public static ExamUpdateDTO getExamInfo(int examId, MptcContext _context){
+            Exam exam = _context.Exams.Find(examId);
+            ExamUpdateDTO examUpdateDTO = ExamService.toExamUpdateDTO(exam);
+            return examUpdateDTO;
+        }
 
-        //     foreach (Exam exam in exams)
-        //     {
-        //         ExamDTO examDTO = new ExamDTO();
+        public static ExamDTO toExamDTO(Exam exam)
+        {
+            ExamDTO examDTO = new ExamDTO();
 
-        //         examDTO.IdExam = exam.IdExam;
-        //         examDTO.Period = DataService.FormatDateRange(exam.Period.BeginDate, exam.Period.EndDate);
-        //         examDTO.Session = exam.Session;
-        //         examDTO.Subject = exam.Subject.SubjectName;
-        //         examDTO.Level = exam.Level.LevelName;
-        //         examDTO.Uripath = exam.Uripath;
-        //         examDTO.UripathAssetNote = exam.UripathAssetNote;
-        //         examDTO.DateExam = exam.DateCreated;
-        //         examDTO.StaffId = exam.StaffId;
+            examDTO.IdExam = exam.IdExam;
+            examDTO.Period = DataService.FormatDateRange(exam.Period.BeginDate, exam.Period.EndDate);
+            examDTO.Session = ExamService.setSessionName(exam.Session);
+            examDTO.Subject = exam.Subject.SubjectName;
+            examDTO.Level = exam.Level.LevelName;
+            examDTO.Uripath = exam.Uripath;
+            examDTO.UripathAssetNote = exam.UripathAssetNote;
+            examDTO.DateExam = exam.DateCreated.ToString("dd/MM/yyyy");
+            examDTO.StaffId = exam.StaffId;
 
-        //         examDTOs.Add(examDTO);
-        //     }
+            return examDTO;
+        }
 
-        //     return examDTOs;
-        // }
+        public static ExamUpdateDTO toExamUpdateDTO(Exam exam)
+        {
+            ExamUpdateDTO examUpdateDTO = new ExamUpdateDTO();
+
+            examUpdateDTO.IdExam = exam.IdExam;
+            examUpdateDTO.PeriodId = exam.PeriodId;
+            examUpdateDTO.Session = exam.Session;
+            examUpdateDTO.SubjectId = exam.SubjectId;
+            examUpdateDTO.LevelId = exam.LevelId;
+            examUpdateDTO.Uripath = exam.Uripath;
+            examUpdateDTO.UripathAssetNote = exam.UripathAssetNote;
+            examUpdateDTO.DateCreated = exam.DateCreated;
+            examUpdateDTO.StaffId = exam.StaffId;
+
+            return examUpdateDTO;
+        }
 
         public static async Task<string> UploadPDFAsync(IFormFile PDFfile)
         {
@@ -125,11 +130,7 @@ namespace MPTC_API.Services.Attendance
             existingExam.SubjectId = exam.SubjectId;
             existingExam.LevelId = exam.LevelId;
             existingExam.SubjectId = exam.SubjectId;
-            existingExam.UripathAssetNote = exam.UripathAssetNote;
-            existingExam.Uripath = exam.Uripath;
             existingExam.DateCreated = exam.DateCreated;
-            existingExam.StaffId = exam.StaffId;
-            // Add other properties to update as needed
 
             // Save changes to the database
             _context.SaveChanges();
