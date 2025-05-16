@@ -41,7 +41,7 @@ namespace MPTC_API.Services.Attendance
 
             // After saving, fetch the recent two logs and include only the staff object without joining other entity
             var recentLogs = context.Logss
-                .OrderByDescending(l => l.EventTime)
+                .Where(l => l.EventTime.Date == DateTime.UtcNow.Date)
                 .Take(2)
                 .Select(l => new
                 {
@@ -57,6 +57,7 @@ namespace MPTC_API.Services.Attendance
                 })
                 .ToList();
       
+            Console.WriteLine("Recent logs : " + recentLogs.Count);
 
             // Use the hub context to send the recent activities to the clients
             _hubContext.Clients.All.SendAsync("ReceiveRecentActivities", recentLogs);

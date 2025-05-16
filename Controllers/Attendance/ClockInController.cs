@@ -28,7 +28,10 @@ namespace MPTC_API.Controllers.Attendance
         {
             Console.WriteLine("Start clock in");
 
-            var capture = new VideoCapture(1);
+            string videoFilePath = "D:\\Dev\\Record Video RF\\a.mp4";
+            string networkStreamUrl = "rtsp://localhost:8554/stream"; // Replace with your RTSP stream URL
+
+            var capture = new VideoCapture(videoFilePath);
             if (!capture.IsOpened)
             {
                 Console.WriteLine("Failed to open camera.");
@@ -37,7 +40,7 @@ namespace MPTC_API.Controllers.Attendance
                 Console.WriteLine("Camera 1 opened");
             }
             capture.Set(CapProp.Fps, 60);
-            capture.Set(CapProp.Buffersize, 3);
+            capture.Set(CapProp.Buffersize, 10);
 
             // Start processing frames asynchronously
             var cancellationTokenSource = new CancellationTokenSource();
@@ -53,9 +56,6 @@ namespace MPTC_API.Controllers.Attendance
             // Console.WriteLine("Before process");
             // await Task.Run(() => _recognitionService.ProcessFrames(capture, token, true), token);
             // Console.WriteLine("After  process");
-
-
-            
             return Ok("Welcome to ClockIn Controller");
         }
 

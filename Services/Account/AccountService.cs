@@ -40,13 +40,13 @@ namespace MPTC_API.Services.Authentication
         public static bool authenticate(Member member, String plainTextPassword)
         {
             if(member==null){
-                throw new Exception("An error occurred. Please try again later.");
+                throw new Exception("Authentication failed: Invalid username or password.");
             }
             //verify member password using bcrypt match
             if(BCrypt.Net.BCrypt.Verify(plainTextPassword, member.Password)){
                 return true ;   
             }
-            throw new Exception("An error occurred. Please try again later.");
+            throw new Exception("Authentication failed: Invalid username or password.");
         }
 
         public static string GenerateJwtToken(Member member)

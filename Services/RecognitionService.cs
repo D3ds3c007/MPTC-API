@@ -260,7 +260,16 @@ namespace MPTC_API.Services
                         foreach (var recognizedFace in _recognizedNames)
                         {
                             var rect = recognizedFace.Key;
-                            CvInvoke.Rectangle(frame, new System.Drawing.Rectangle(rect.Left, rect.Top, (int)rect.Width, (int)rect.Height), new MCvScalar(Color.Red.B, Color.Red.G, Color.Red.R), 2);
+                            MCvScalar color = new MCvScalar(Color.Red.B, Color.Red.G, Color.Red.R); // Green color for the rectangle
+                            if (recognizedFace.Value == "Unknown")
+                            {
+                                color = new MCvScalar(Color.Red.B, Color.Red.G, Color.Red.R); // Red color for unknown faces
+                            }
+                            else
+                            {
+                                color = new MCvScalar(Color.Green.B, Color.Green.G, Color.Green.R); // Green color for known faces
+                            }
+                            CvInvoke.Rectangle(frame, new System.Drawing.Rectangle(rect.Left, rect.Top, (int)rect.Width, (int)rect.Height), color, 2);
                             CvInvoke.PutText(frame, recognizedFace.Value, new System.Drawing.Point(rect.Left, rect.Top - 10), FontFace.HersheySimplex, 0.5, new MCvScalar(Color.Yellow.B, Color.Yellow.G, Color.Yellow.R), 1);
                         }
 
@@ -397,6 +406,7 @@ namespace MPTC_API.Services
             double distance = double.MaxValue;
             string result = "Unknown";
             Dictionary<int, float> occurrences = new Dictionary<int, float>();
+            List<float> results = new List<float>();
             double distanceUknown = 0.0;
             int i = 0;
             int j =0;
@@ -405,11 +415,13 @@ namespace MPTC_API.Services
             {
                 // Compare the face descriptor with known embeddings
                 foreach (var kvp in _knownFaceEmbeddings)
-                {
+                {   
+
                     j=0;
                     int name = kvp.Key;
+                    //write ternary condition to check if name is 64, then break
                     var listOfEmbeddings = kvp.Value;
-
+                    results.Clear();
                     foreach (var knownEmbedding in listOfEmbeddings)
                     {
 
@@ -430,16 +442,19 @@ namespace MPTC_API.Services
                             {
                                 occurrences[name] = 0;
                             }
+                            // results.Add((float) distCalculated);
                             occurrences[name] += (float) distCalculated;
                             j++;
+                            
 
                             Console.WriteLine(result);
                         // }
                         
                     }
-
+                   
                     if(j > 0)
                         occurrences[name] = occurrences[name] / j;
+                        Console.WriteLine($"J value : {j} and Occurrences : {occurrences[name]}");
 
                 }
 
@@ -449,6 +464,7 @@ namespace MPTC_API.Services
                     var min = occurrences.Values.Min();
                     var key = occurrences.FirstOrDefault(x => x.Value == min && x.Value  <= threshold).Key;
                     //check if key is not 0, if 0 result is unknown. Use ternary operator
+                   
                     result = key != 0 ? key.ToString() : "Unknown";
                 }
                 
