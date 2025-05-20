@@ -12,6 +12,8 @@ using static System.Text.Json.JsonElement;
 using MPTC_API.Models.DTO;
 using MPTC_API.Models.Education;
 using System.Security.Claims;
+using MPTC_API.Services.Education;
+
 
 
 namespace MPTC_API.Controllers
@@ -53,7 +55,16 @@ namespace MPTC_API.Controllers
         [HttpGet("list")]
         public async Task<IActionResult> GetExams()
         {
-            List<ExamDTO> examDTOs = ExamService.listExams(_context);
+            // List<ExamDTO> examDTOs = ExamService.listExams(_context);
+            List<ExamDTO> examDTOs = ExamService.listExamsPerProf(_context, 1);
+
+            return Ok(examDTOs);
+        }
+
+        [HttpGet("list/{staffId}")]
+        public async Task<IActionResult> GetExams(int staffId)
+        {
+            List<ExamDTO> examDTOs = ExamService.listExamsPerProf(_context, staffId);
 
             return Ok(examDTOs);
         }
@@ -102,7 +113,7 @@ namespace MPTC_API.Controllers
 
                 DateTime dateExam = DateTime.Parse(examformDTO.DateExam).ToUniversalTime();
 
-                Exam e = new Exam
+                Exam newExam = new Exam
                 {
                     PeriodId = (int)examformDTO.PeriodId,
                     Session = (int)examformDTO.Session,
@@ -111,21 +122,45 @@ namespace MPTC_API.Controllers
                     Uripath = subjectPath,
                     UripathAssetNote = assetnotePath,
                     DateCreated = dateExam,
-                    StaffId = int.Parse(idStaffClaim)
+                    StaffId = int.Parse(idStaffClaim),
+                    Name = examformDTO.Name,
+                    DateLastModified = DateTime.UtcNow
                 };
 
-                //print exam attributes
-                // Console.WriteLine("Exam Details:");
-                // Console.WriteLine($"PeriodId: {e.PeriodId}");
-                // Console.WriteLine($"Session: {e.Session}");
-                // Console.WriteLine($"SubjectId: {e.SubjectId}");
-                // Console.WriteLine($"LevelId: {e.LevelId}");
-                // Console.WriteLine($"Uripath: {e.Uripath}");
-                // Console.WriteLine($"UripathAssetNote: {e.UripathAssetNote}");
-                // Console.WriteLine($"DateCreated: {e.DateCreated}");
-                // Console.WriteLine($"StaffId: {e.StaffId}");
+                int lastExamId = _context.Exams
+                .OrderByDescending(e => e.IdExam)
+                .Select(e => e.IdExam)
+                .FirstOrDefault();
 
-                ExamService.createExam(e, _context);
+                if(lastExamId == 0)
+                {
+                    newExam.IdExam = 1;
+                }
+                else
+                {
+                    newExam.IdExam = lastExamId + 1;
+                }
+
+                //print exam attributes
+                Console.WriteLine("Exam Details:");
+                Console.WriteLine($"IdExam: {newExam.IdExam}");
+                // Console.WriteLine($"PeriodId: {newExam.PeriodId}");
+                // Console.WriteLine($"Session: {newExam.Session}");
+                // Console.WriteLine($"SubjectId: {newExam.SubjectId}");
+                // Console.WriteLine($"LevelId: {newExam.LevelId}");
+                // Console.WriteLine($"Uripath: {newExam.Uripath}");
+                // Console.WriteLine($"UripathAssetNote: {newExam.UripathAssetNote}");
+                // Console.WriteLine($"DateCreated: {newExam.DateCreated}");
+                // Console.WriteLine($"StaffId: {newExam.StaffId}");
+                // Console.WriteLine($"Name: {newExam.Name}");
+                // Console.WriteLine($"DateLastModified: {newExam.DateLastModified}");
+
+                ExamService.validateExam(_context, newExam);
+                Exam e = await ExamService.createExam(newExam, _context);
+
+                ExtractorService.createCSV(e.Uripath, e.UripathAssetNote, newExam.Name);
+
+
             }
             else
             {

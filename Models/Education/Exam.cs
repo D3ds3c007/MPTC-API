@@ -8,6 +8,9 @@ namespace MPTC_API.Models.Education
         [Key]
         public int IdExam { get; set; }
 
+        [Required(ErrorMessage = "Name is required and cannot be empty")]
+        public string Name { get; set; }
+
         [Required(ErrorMessage = "PeriodId is required and cannot be empty")]
         public int PeriodId { get; set; }
 
@@ -28,6 +31,10 @@ namespace MPTC_API.Models.Education
 
         [Required(ErrorMessage = "DateCreated is required and cannot be empty")]
         public DateTime DateCreated { get; set; }
+
+        [Required(ErrorMessage = "DateLastModified is required and cannot be empty")]
+
+        public DateTime DateLastModified { get; set; }
 
         [Required(ErrorMessage = "StaffId is required and cannot be empty")]
         public int StaffId { get; set; }

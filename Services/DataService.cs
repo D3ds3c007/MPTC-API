@@ -123,6 +123,21 @@ namespace MPTC_API.Services.Authentication
             return periodDTOs;
         }
 
+        public static List<PeriodDTO> GetRecentPeriods(MptcContext context)
+        {
+            List<PeriodDTO> periodDTOs = context.Periods
+                .OrderByDescending(p => p.BeginDate) // Sort by most recent
+                .Take(3)                             // Take the top 3
+                .Select(period => new PeriodDTO
+                {
+                    IdPeriod = period.IdPeriod,
+                    Name = DataService.FormatDateRange(period.BeginDate, period.EndDate)
+                })
+                .ToList();
+
+            return periodDTOs;
+        }
+
         public static string FormatDateRange(DateTime startDate, DateTime endDate)
         {
             // Get the short month names and year for both dates

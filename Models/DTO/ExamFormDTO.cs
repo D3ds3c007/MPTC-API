@@ -7,6 +7,7 @@ namespace MPTC_API.Models.DTO
     public class ExamFormDTO
     {
         public int IdExam { get; set; }
+        public string Name { get; set; }
         public int PeriodId { get; set; }
         public int Session { get; set; }
         public int SubjectId { get; set; }
